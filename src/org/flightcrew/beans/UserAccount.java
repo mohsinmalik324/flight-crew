@@ -1,12 +1,13 @@
 package org.flightcrew.beans;
- 
-enum AccountType {
-	Manager,
-	Representative,
-	Customer
-}
 
-public class UserAccount {    
+
+public class UserAccount {  
+	public enum AccountType {
+		Manager,
+		Representative,
+		Customer
+	}
+	
    private String userName;
    private String password;
    private AccountType type;
