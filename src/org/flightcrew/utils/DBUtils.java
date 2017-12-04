@@ -9,9 +9,10 @@ import java.util.List;
  
 import org.flightcrew.beans.UserAccount;
 //import org.flightcrew.beans.UserAccount.AccountType;
- 
 
-
+//server: sql9.freemysqlhosting.net
+//user: sql9208791
+//pass: HALlmFZxtp
 
 //TODO: Customer level transaction page
 //TODO: Travel itinerary for a given reservation
@@ -38,13 +39,6 @@ import org.flightcrew.beans.UserAccount;
 //TODO: Produce a list of most active flights
 //TODO: Produce a list of all customers who have seats reserved on a given flight
 //TODO: Produce a list of all flights for a given airport
-
-
-
-
-
-
-
 
 public class DBUtils {
  
