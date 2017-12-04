@@ -51,6 +51,10 @@ public class signupServlet extends HttpServlet {
     		response.sendRedirect("signup?err=1");
     		return;
     	}
+    	if(zipcode < 1) {
+    		response.sendRedirect("signup?err=1");
+    		return;
+    	}
     	String email = request.getParameter("email");
     	String username = request.getParameter("username");
     	String password = request.getParameter("password");
