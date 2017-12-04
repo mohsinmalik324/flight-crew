@@ -39,8 +39,8 @@ public class loginServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-    	String userName = request.getParameter("userName");
-        String password = request.getParameter("password");
+    	String userName = request.getParameter("Username");
+        String password = request.getParameter("Password");
  
         UserAccount user = null;
         boolean hasError = false;
@@ -67,6 +67,14 @@ public class loginServlet extends HttpServlet {
         }
         // If error, forward to /WEB-INF/views/login.jsp
         if (hasError) {
+        	user = new UserAccount();
+            user.setUserName(userName);
+            user.setPassword(password);
+ 
+            // Store information in request attribute, before forward.
+            request.setAttribute("errorString", errorString);
+            request.setAttribute("user", user);
+        	
             // Forward to /WEB-INF/views/login.jsp
             RequestDispatcher dispatcher //
                     = this.getServletContext().getRequestDispatcher("/WEB-INF/views/loginView.jsp");

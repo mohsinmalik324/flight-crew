@@ -1,5 +1,9 @@
 package org.flightcrew.beans;
 
+//server: sql9.freemysqlhosting.net
+//user: sql9208791
+//pass: HALlmFZxtp
+
 
 public class UserAccount {  
 	public enum AccountType {

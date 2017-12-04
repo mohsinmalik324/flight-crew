@@ -64,11 +64,13 @@
 			  }
 		</style>
 		
+		
 		<div class="container">
+			<p style="color: red; text-align: center;">${errorString}</p>
 			<form method="POST" action="${pageContext.request.contextPath}/login" class="form-signin">
 				<h1 class="form-signin-heading text-muted">Log In</h1>
-				<input type="text" class="form-control" placeholder="Username" required="" autofocus="">
-				<input type="password" class="form-control" placeholder="Password" required="">
+				<input type="text" name="Username" class="form-control" placeholder="Username" required="" autofocus="">
+				<input type="password" name="Password" class="form-control" placeholder="Password" required="">
 				<button class="btn btn-lg btn-primary btn-block" type="submit" value="Submit">
 					Log In
 				</button>
