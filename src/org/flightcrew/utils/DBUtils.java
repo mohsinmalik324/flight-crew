@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.flightcrew.beans.UserAccount;
 
@@ -47,6 +49,22 @@ public class DBUtils {
 			e.printStackTrace();
 		}
 		return false;
+	}
+	
+	public static List<String> getAirports(Connection conn) {
+		List<String> airports = new ArrayList<>();
+		String sql = "SELECT Name FROM Airport";
+		try {
+			PreparedStatement ps = conn.prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()) {
+				airports.add(rs.getString("Name"));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		return airports;
 	}
 	
 	// Assumes user does not exist.
