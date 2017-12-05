@@ -8,7 +8,7 @@
 		<jsp:include page="_head.jsp"></jsp:include>
 		<style>
 			.middle {
-				width: 250px;
+				width: 350px;
 				margin: auto;
 				text-align: center;
 			}
@@ -78,10 +78,10 @@
 				</form>
 			<%} else {
 				if(origin.equals(dest)) {
-					
-				} else {
-					
+					response.sendRedirect("home?err=1");
+					return;
 				}
+				System.out.println(retDate);
 			}
 			%>
 		</div>
