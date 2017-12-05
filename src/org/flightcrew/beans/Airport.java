@@ -1,17 +1,17 @@
 package org.flightcrew.beans;
 
 public class Airport {
-
-	private String id;
-	private String name;
-	private String city;
-	private String country;
-
+	
+	private String id = null;
+	private String name = null;
+	private String city = null;
+	private String country = null;
+	
 	public Airport(String id, String name, String city, String country) {
-		this.id = id;
-		this.name = name;
-		this.city = city;
-		this.country = country;
+		this.setId(id);
+		this.setName(name);
+		this.setCity(city);
+		this.setCountry(country);
 	}
 
 	public String getId() {
@@ -45,6 +45,5 @@ public class Airport {
 	public void setCountry(String country) {
 		this.country = country;
 	}
-	
 	
 }

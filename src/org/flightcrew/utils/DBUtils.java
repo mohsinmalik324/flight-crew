@@ -1,3 +1,4 @@
+
 package org.flightcrew.utils;
  
 import java.sql.Connection;
@@ -7,10 +8,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.flightcrew.beans.Leg;
+import org.flightcrew.beans.Airport;
 import org.flightcrew.beans.UserAccount;
-
-//import org.flightcrew.beans.UserAccount.AccountType;
 
 //server: sql9.freemysqlhosting.net
 //user: sql9208791
@@ -41,8 +40,58 @@ import org.flightcrew.beans.UserAccount;
 //TODO: Produce a list of most active flights
 //TODO: Produce a list of all customers who have seats reserved on a given flight
 //TODO: Produce a list of all flights for a given airport
-
+ 
 public class DBUtils {
+	
+	public static boolean runQuery(Connection conn, String sql) {
+		try {
+			conn.prepareStatement(sql).execute();
+			return true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public static List<Airport> getAirports(Connection conn) {
+		List<Airport> airports = new ArrayList<>();
+		String sql = "SELECT * FROM Airport";
+		try {
+			PreparedStatement ps = conn.prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()) {
+				Airport airport = new Airport(rs.getString("Id"), rs.getString("Name"), rs.getString("City"), rs.getString("Country"));
+				airports.add(airport);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		return airports;
+	}
+	
+	// Assumes user does not exist.
+	public static boolean addUser(Connection conn, String fname, String lname, String address, String city, String state, int zip, String email, String username, String password) {
+		int id = getNumberOfRecords(conn, "Person") + 1;
+		int accountNumber = getNumberOfRecords(conn, "Customer") + 1;
+		String sql = "INSERT INTO Person VALUES (" + id + ", '" + fname + "', '" + lname + "', '" + address + "', '" + city + "', '" + state + "', " + zip + ")";
+		String sql2 = "INSERT INTO Customer VALUES (" + id + ", " + accountNumber + ", NULL, '" + email + "', NOW(), NULL, '" + username + "', '" + password + "')";
+		return runQuery(conn, sql) && runQuery(conn, sql2);
+	}
+	
+	public static int getNumberOfRecords(Connection conn, String table) {
+		String sql = "SELECT COUNT(*) FROM " + table;
+		try {
+			PreparedStatement ps = conn.prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+			if(rs.next()) {
+				return rs.getInt(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
  
     public static UserAccount findUser(Connection conn, //
             String userName, String password) throws SQLException {
@@ -87,11 +136,4 @@ public class DBUtils {
         }
         return null;
     }
-    
-    public static Leg getTravelItinerary() {
-    	//String sql = "Select * from Legs"//
-                //+ " where a.Username = ? ";
-    	return new Leg("", 0, 0, "", "", "", "");
-    }
- 
 }
