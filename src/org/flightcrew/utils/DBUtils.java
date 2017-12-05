@@ -86,6 +86,8 @@ public class DBUtils {
         return null;
     }
     
-    
+    public static Leg getTravelItinerary() {
+    	
+    }
  
 }
