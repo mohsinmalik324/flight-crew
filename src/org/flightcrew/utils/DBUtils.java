@@ -53,6 +53,11 @@ public class DBUtils {
 		return false;
 	}
 	
+	public static Leg getTravelItinerary() {
+    	//String sql = "Select * from Legs"//
+                //+ " where a.Username = ? ";
+   	return new Leg("", 0, 0, "", "", "", "");
+	
 	public static List<Airport> getAirports(Connection conn) {
 		List<Airport> airports = new ArrayList<>();
 		String sql = "SELECT * FROM Airport";
