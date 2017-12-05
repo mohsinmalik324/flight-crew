@@ -6,8 +6,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.flightcrew.beans.Airport;
+import org.flightcrew.beans.Flight;
+import org.flightcrew.beans.Leg;
 import org.flightcrew.beans.UserAccount;
 
 //server: sql9.freemysqlhosting.net
@@ -52,6 +55,21 @@ public class DBUtils {
 		return false;
 	}
 	
+	public static List<Flight> getFlights(Connection conn, String origin, String dest, int deptDay, int retDay) {
+		List<Flight> flights = new ArrayList<>();
+		String sql = "SELECT * FROM Flight";
+		try {
+			PreparedStatement ps = conn.prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()) {
+				
+			}
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return flights;
+	}
+	
 	public static List<Airport> getAirports(Connection conn) {
 		List<Airport> airports = new ArrayList<>();
 		String sql = "SELECT * FROM Airport";
@@ -64,7 +82,6 @@ public class DBUtils {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return null;
 		}
 		return airports;
 	}

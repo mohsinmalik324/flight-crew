@@ -2,6 +2,7 @@
 <%@ page import="org.flightcrew.utils.DBUtils" %>
 <%@ page import="org.flightcrew.utils.MyUtils" %>
 <%@ page import="org.flightcrew.beans.Airport" %>
+<%@ page import="java.util.Calendar" %>
 <!DOCTYPE html>
 <html>
 	<head>
@@ -30,6 +31,8 @@
 					errMsg = "Origin and Destination can't be the same.";
 				} else if(err.equals("2")) {
 					errMsg = "Return Date must come after Departure Date.";
+				} else if(err.equals("3")) {
+					errMsg = "Departure Date must be specified.";
 				}
 				if(errMsg != null) {
 					out.println("<p class='alert alert-danger' id='errMsg'>" + errMsg + "</p>");
@@ -37,10 +40,11 @@
 			}
 			String origin = request.getParameter("origin");
 			String dest = request.getParameter("dest");
-			String deptDate = request.getParameter("dept-date");
-			String retDate = request.getParameter("ret-date");
+			String deptDateString = request.getParameter("dept-date");
+			String retDateString = request.getParameter("ret-date");
 			String numPeopleString = request.getParameter("num-people");
-			if(origin == null && dest == null && deptDate == null && retDate == null && numPeopleString == null) {%>
+			// Check if none of the fields are available.
+			if(origin == null && dest == null && deptDateString == null && retDateString == null && numPeopleString == null) {%>
 				<form method="get" action="${pageContext.request.contextPath}/">
 					<label for="origin">Origin:</label>
 					<select class="form-control" id="origin" name="origin">
@@ -81,7 +85,39 @@
 					response.sendRedirect("home?err=1");
 					return;
 				}
-				System.out.println(retDate);
+				
+				// Get departure date calendar object.
+				Calendar deptDate = null;
+				if(deptDateString != null && !deptDateString.equals("")) {
+					String[] deptDateStringSplit = deptDateString.split("-");
+					deptDate = Calendar.getInstance();
+					deptDate.set(Calendar.YEAR, Integer.valueOf(deptDateStringSplit[0]));
+					deptDate.set(Calendar.MONTH, Integer.valueOf(deptDateStringSplit[1]));
+					deptDate.set(Calendar.DAY_OF_MONTH, Integer.valueOf(deptDateStringSplit[2]));
+				}
+				
+				// Get return date calendar object.
+				Calendar retDate = null;
+				if(retDateString != null && !retDateString.equals("")) {
+					String[] retDateStringSplit = retDateString.split("-");
+					retDate = Calendar.getInstance();
+					retDate.set(Calendar.YEAR, Integer.valueOf(retDateStringSplit[0]));
+					retDate.set(Calendar.MONTH, Integer.valueOf(retDateStringSplit[1]));
+					retDate.set(Calendar.DAY_OF_MONTH, Integer.valueOf(retDateStringSplit[2]));
+				}
+				
+				if(deptDate == null) {
+					response.sendRedirect("home?err=3");
+					return;
+				}
+				if(deptDate != null && retDate != null && deptDate.after(retDate)) {
+					response.sendRedirect("home?err=2");
+					return;
+				}
+				
+				// Error checking done, generate flight list below.
+				
+				
 			}
 			%>
 		</div>
