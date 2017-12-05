@@ -98,6 +98,8 @@
 				errMsg = "An unexpected error occured. Try again.";
 			} else if(err.equals("4")) {
 				errMsg = "That user already exists.";
+			} else if(err.equals("5")) {
+				errMsg = "Please enter a valid email address.";
 			}
 			if(errMsg != null) {
 				out.println("<p class='alert alert-danger' id='errMsg'>" + errMsg + "</p>");

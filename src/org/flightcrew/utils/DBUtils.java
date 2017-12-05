@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.flightcrew.beans.Airport;
 import org.flightcrew.beans.UserAccount;
 
 //server: sql9.freemysqlhosting.net
@@ -51,14 +52,15 @@ public class DBUtils {
 		return false;
 	}
 	
-	public static List<String> getAirports(Connection conn) {
-		List<String> airports = new ArrayList<>();
-		String sql = "SELECT Name FROM Airport";
+	public static List<Airport> getAirports(Connection conn) {
+		List<Airport> airports = new ArrayList<>();
+		String sql = "SELECT * FROM Airport";
 		try {
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ResultSet rs = ps.executeQuery();
 			while(rs.next()) {
-				airports.add(rs.getString("Name"));
+				Airport airport = new Airport(rs.getString("Id"), rs.getString("Name"), rs.getString("City"), rs.getString("Country"));
+				airports.add(airport);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.flightcrew.beans.UserAccount;
 import org.flightcrew.utils.DBUtils;
 import org.flightcrew.utils.MyUtils;
+import org.flightcrew.utils.Utils;
  
 @WebServlet(urlPatterns = { "/signup" })
 public class signupServlet extends HttpServlet {
@@ -56,6 +57,10 @@ public class signupServlet extends HttpServlet {
     		return;
     	}
     	String email = request.getParameter("email");
+    	if(!Utils.isEmailValid(email)) {
+    		response.sendRedirect("signup?err=5");
+    		return;
+    	}
     	String username = request.getParameter("username");
     	String password = request.getParameter("password");
     	String cpassword = request.getParameter("cpassword");
