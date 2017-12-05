@@ -6,6 +6,7 @@
 	<body>
 		<jsp:include page="_header.jsp"></jsp:include>
 		account
+		Hello <b>${loginedUser.userName}</b>
 		<jsp:include page="_footer.jsp"></jsp:include>
 	</body>
 </html>
