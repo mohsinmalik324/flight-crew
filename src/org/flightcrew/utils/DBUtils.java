@@ -6,8 +6,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
- 
+
+import org.flightcrew.beans.Leg;
 import org.flightcrew.beans.UserAccount;
+
 //import org.flightcrew.beans.UserAccount.AccountType;
 
 //server: sql9.freemysqlhosting.net
@@ -87,7 +89,9 @@ public class DBUtils {
     }
     
     public static Leg getTravelItinerary() {
-    	
+    	//String sql = "Select * from Legs"//
+                //+ " where a.Username = ? ";
+    	return new Leg("", 0, 0, "", "", "", "");
     }
  
 }
