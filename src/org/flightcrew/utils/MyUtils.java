@@ -7,7 +7,9 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
- 
+
+import org.flightcrew.beans.Customer;
+import org.flightcrew.beans.Person;
 import org.flightcrew.beans.UserAccount;
  
 public class MyUtils {
@@ -32,6 +34,14 @@ public class MyUtils {
     public static void storeLoginedUser(HttpSession session, UserAccount loginedUser) {
         // On the JSP can access via ${loginedUser}
         session.setAttribute("loginedUser", loginedUser);
+    }
+    
+    public static void storeCustomer(HttpSession session, Customer customer) {
+    	session.setAttribute("customer", customer);
+    }
+    
+    public static void storePerson(HttpSession session, Person person) {
+    	session.setAttribute("person", person);
     }
  
     // Get the user information stored in the session.

@@ -87,6 +87,13 @@ public class loginServlet extends HttpServlet {
         else {
             HttpSession session = request.getSession();
             MyUtils.storeLoginedUser(session, user);
+            try {
+				MyUtils.storeCustomer(session, DBUtils.getCustomer(MyUtils.getStoredConnection(request), userName));
+				MyUtils.storePerson(session, DBUtils.getPerson(MyUtils.getStoredConnection(request), userName));
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
  
             // Redirect to userInfo page.
             response.sendRedirect(request.getContextPath() + "/account");
