@@ -20,11 +20,6 @@ import org.flightcrew.beans.UserAccount;
 //user: sql9208791
 //pass: HALlmFZxtp
 
-//TODO: Customer-Representative level transaction page
-//TODO: Record a reservation
-//TODO: Add, Edit and Delete information for a customer
-//TODO: Produce customer mailing lists
-//TODO: Produce a list of flight suggestions for a given customer (based on that customer's past reservations)
 
 //TODO: Management level transaction page
 //TODO: Add, Edit and Delete information for an employee
@@ -324,4 +319,32 @@ public class DBUtils {
 		
 		return bestSellers;
 	}
+	
+	//TODO: Customer-Representative level transaction page
+	
+	//CHECK
+	//TODO: Record a reservation
+	public static boolean createReservation(Connection conn, double bookingFee, double totalFare, int repSSN, int accountNo) throws SQLException {
+		
+		int resrNo = getNumberOfRecords(conn, "Reservation") + 1;
+		String sql = "INSERT INTO Reservation (ResrNo, ResrDate, BookingFee, TotalFare, RepSSN, AccountNo)"//
+                + " VALUES (?, NOW(), ?, ?, ?, ?)";
+		
+		PreparedStatement pstm = conn.prepareStatement(sql);
+        pstm.setInt(0, resrNo);
+        pstm.setDouble(1, bookingFee);
+        pstm.setDouble(2, totalFare);
+        pstm.setInt(3, repSSN);
+        pstm.setInt(4, accountNo);
+        
+        return pstm.execute();
+	}
+	
+	
+	//TODO: Add, Edit and Delete information for a customer
+	//TODO: Produce customer mailing lists
+	//TODO: Produce a list of flight suggestions for a given customer (based on that customer's past reservations)
+	
+	
+	
 }
