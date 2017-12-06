@@ -1,6 +1,6 @@
 package org.flightcrew.beans;
 
-public class Leg {
+public class Leg implements Comparable<Leg> {
 	
 	private String airlineID = null;
 	private int flightNumber = 0;
@@ -74,6 +74,17 @@ public class Leg {
 
 	public void setArrTime(String arrTime) {
 		this.arrTime = arrTime;
+	}
+
+	@Override
+	public int compareTo(Leg leg) {
+		if(legNumber == leg.legNumber) {
+			return 0;
+		}
+		if(legNumber < leg.legNumber) {
+			return -1;
+		}
+		return 1;
 	}
 	
 }
