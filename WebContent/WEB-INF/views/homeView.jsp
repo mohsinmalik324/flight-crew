@@ -1,8 +1,11 @@
 <%@ page import="java.util.List" %>
+<%@ page import="java.util.Calendar" %>
+<%@ page import="java.util.Map" %>
 <%@ page import="org.flightcrew.utils.DBUtils" %>
 <%@ page import="org.flightcrew.utils.MyUtils" %>
 <%@ page import="org.flightcrew.beans.Airport" %>
-<%@ page import="java.util.Calendar" %>
+<%@ page import="org.flightcrew.beans.Flight" %>
+<%@ page import="org.flightcrew.beans.Leg" %>
 <!DOCTYPE html>
 <html>
 	<head>
@@ -117,7 +120,22 @@
 				
 				// Error checking done, generate flight list below.
 				
+				String originID = origin.substring(0, 5).substring(1).substring(0, 3);
+				String destID = dest.substring(0, 5).substring(1).substring(0, 3);
 				
+				//out.println(originID + " " + destID + " " + deptDateString);
+				
+				Map<Flight, List<Leg>> flightsAndLegs = DBUtils.getFlightsAndLegs(MyUtils.getStoredConnection(request), originID, destID, deptDateString);
+				
+				for(Flight flight : flightsAndLegs.keySet()) {
+					out.println(flight.getAirlineID() + "," + flight.getFlightNumber() + ":");
+					for(Leg leg : flightsAndLegs.get(flight)) {
+						out.println(leg.getDepAirportID() + "->" + leg.getArrAirportID());
+					}
+				}
+				
+				//out.println(flightsAndLegs.size());
+				//out.println();
 			}
 			%>
 		</div>
