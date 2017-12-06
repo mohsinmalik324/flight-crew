@@ -175,6 +175,7 @@ public class DBUtils {
 		return airports;
 	}
 	
+	//TODO: Add, Edit and Delete information for a customer
 	// Assumes user does not exist.
 	public static boolean addUser(Connection conn, String fname, String lname, String address, String city, String state, int zip, String email, String username, String password) {
 		int id = getNumberOfRecords(conn, "Person") + 1;
@@ -183,6 +184,13 @@ public class DBUtils {
 		String sql2 = "INSERT INTO Customer VALUES (" + id + ", " + accountNumber + ", NULL, '" + email + "', NOW(), NULL, '" + username + "', '" + password + "')";
 		return runQuery(conn, sql) && runQuery(conn, sql2);
 	}
+	
+	public static boolean updateUser(Connection conn, int accountID, String fname, String lname, String address, String city, String state, int zip, String email, String username, String password, String ccNo, int rating, String curUser) {
+		String sql = "UPDATE Person SET FirstName = " + fname + ", LastName = " + lname + ", Address = " + address + ", City = " + city + ", State = " + state + ", ZipCode = " + zip + " WHERE Id = " + accountID;
+		String sql2 = "UPDATE Customer SET CreditCardNo = " + ccNo + ", Email = " + email + ", Password = " + password + "WHERE Username = " + curUser;
+		return runQuery(conn, sql) && runQuery(conn, sql2);
+	}
+	
 	
 	public static int getNumberOfRecords(Connection conn, String table) {
 		String sql = "SELECT COUNT(*) FROM " + table;
@@ -289,17 +297,6 @@ public class DBUtils {
 		return reservations;
 	}
 	
-	  //TODO: Personalized flight suggestion list
-	public static List<Flight> getPersonalizedFlights(Connection conn, int accountNo) {
-//		List<Flight> flights = new ArrayList<>();
-//		
-//		String sql = "Select * from Reservation" //
-//                + " where AccountNo = ?";
-//		
-//		return flights;
-		throw new UnsupportedOperationException("Not supported yet.");
-	}
-	
 	  //TODO: CHECK
 	  //TODO: Best-Seller list of flights  
 	public static List<Includes> getBestSellerList(Connection conn) throws SQLException {
@@ -340,11 +337,38 @@ public class DBUtils {
         return pstm.execute();
 	}
 	
+
 	
-	//TODO: Add, Edit and Delete information for a customer
-	//TODO: Produce customer mailing lists
+	//TODO: COMPLETED Produce customer mailing lists
+	public static List<String> getMailingList(Connection conn) throws SQLException {
+		List<String> emails = new ArrayList<>();
+		
+		String sql = "SELECT email FROM Customer";
+		
+		PreparedStatement pstm = conn.prepareStatement(sql);
+        ResultSet rs = pstm.executeQuery();
+        
+		while(rs.next()) {
+			String email = new String(rs.getString("Email"));
+			emails.add(email);
+		}
+		
+		return emails;
+	}
+	
 	//TODO: Produce a list of flight suggestions for a given customer (based on that customer's past reservations)
+	//TODO: Personalized flight suggestion list
+	public static List<Flight> getPersonalizedFlights(Connection conn, int accountNo) {
 	
+//		List<Flight> flights = new ArrayList<>();
+//		
+//		String sql = "Select DISTINCT * from Reservation" //
+//              + " where AccountNo = ?";
+//		
+//		return flights;
+		
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
 	
 	
 }
