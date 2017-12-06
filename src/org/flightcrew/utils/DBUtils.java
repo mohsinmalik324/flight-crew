@@ -1,4 +1,3 @@
-
 package org.flightcrew.utils;
  
 import java.sql.Connection;
@@ -9,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flightcrew.beans.Airport;
+import org.flightcrew.beans.Flight;
+import org.flightcrew.beans.Leg;
 import org.flightcrew.beans.UserAccount;
 
 //server: sql9.freemysqlhosting.net
@@ -56,7 +57,23 @@ public class DBUtils {
 	public static Leg getTravelItinerary() {
     	//String sql = "Select * from Legs"//
                 //+ " where a.Username = ? ";
-   	return new Leg("", 0, 0, "", "", "", "");
+   		return new Leg("", 0, 0, "", "", "", "");
+   	}
+   	
+   	public static List<Flight> getFlights(Connection conn, String origin, String dest, int deptDay, int retDay) {
+		List<Flight> flights = new ArrayList<>();
+		String sql = "SELECT * FROM Flight";
+		try {
+			PreparedStatement ps = conn.prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()) {
+				
+			}
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return flights;
+	}
 	
 	public static List<Airport> getAirports(Connection conn) {
 		List<Airport> airports = new ArrayList<>();
@@ -70,7 +87,6 @@ public class DBUtils {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return null;
 		}
 		return airports;
 	}

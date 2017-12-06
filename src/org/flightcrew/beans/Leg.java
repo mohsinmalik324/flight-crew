@@ -1,24 +1,23 @@
 package org.flightcrew.beans;
 
 public class Leg {
-
-	private String airlineID;
-	private int flightNo;
-	private int legNo;
-	private String depAirportID;
-	private String arrAirportID;
-	private String arrTime;
-	private String depTime;
 	
-	public Leg(String airlineID, int flightNo, int legNo, String depAirportID, String arrAirportID, String arrTime,
-			String depTime) {
-		this.airlineID = airlineID;
-		this.flightNo = flightNo;
-		this.legNo = legNo;
-		this.depAirportID = depAirportID;
-		this.arrAirportID = arrAirportID;
-		this.arrTime = arrTime;
-		this.depTime = depTime;
+	private String airlineID = null;
+	private int flightNumber = 0;
+	private int legNumber = 0;
+	private String depAirportID = null;
+	private String arrAirportID = null;
+	private String depTime = null;
+	private String arrTime = null;
+	
+	public Leg(String airlineID, int flightNumber, int legNumber, String depAirportID, String arrAirportID, String depTime, String arrTime) {
+		this.setAirlineID(airlineID);
+		this.setFlightNumber(flightNumber);
+		this.setLegNumber(legNumber);
+		this.setDepAirportID(depAirportID);
+		this.setArrAirportID(arrAirportID);
+		this.setDepTime(depTime);
+		this.setArrTime(arrTime);
 	}
 
 	public String getAirlineID() {
@@ -29,20 +28,20 @@ public class Leg {
 		this.airlineID = airlineID;
 	}
 
-	public int getFlightNo() {
-		return flightNo;
+	public int getFlightNumber() {
+		return flightNumber;
 	}
 
-	public void setFlightNo(int flightNo) {
-		this.flightNo = flightNo;
+	public void setFlightNumber(int flightNumber) {
+		this.flightNumber = flightNumber;
 	}
 
-	public int getLegNo() {
-		return legNo;
+	public int getLegNumber() {
+		return legNumber;
 	}
 
-	public void setLegNo(int legNo) {
-		this.legNo = legNo;
+	public void setLegNumber(int legNumber) {
+		this.legNumber = legNumber;
 	}
 
 	public String getDepAirportID() {
@@ -61,14 +60,6 @@ public class Leg {
 		this.arrAirportID = arrAirportID;
 	}
 
-	public String getArrTime() {
-		return arrTime;
-	}
-
-	public void setArrTime(String arrTime) {
-		this.arrTime = arrTime;
-	}
-
 	public String getDepTime() {
 		return depTime;
 	}
@@ -76,6 +67,13 @@ public class Leg {
 	public void setDepTime(String depTime) {
 		this.depTime = depTime;
 	}
-	
+
+	public String getArrTime() {
+		return arrTime;
+	}
+
+	public void setArrTime(String arrTime) {
+		this.arrTime = arrTime;
+	}
 	
 }
