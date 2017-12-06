@@ -1,11 +1,11 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Calendar" %>
 <%@ page import="java.util.Map" %>
+<%@ page import="java.util.Collections" %>
 <%@ page import="org.flightcrew.utils.DBUtils" %>
 <%@ page import="org.flightcrew.utils.MyUtils" %>
-<%@ page import="org.flightcrew.beans.Airport" %>
-<%@ page import="org.flightcrew.beans.Flight" %>
-<%@ page import="org.flightcrew.beans.Leg" %>
+<%@ page import="org.flightcrew.beans.*" %>
+<%@ page import="java.sql.Connection" %>
 <!DOCTYPE html>
 <html>
 	<head>
@@ -19,6 +19,30 @@
 			
 			#origin, #dest, #dept-date, #ret-date, #num-people {
 				margin-bottom: 10px;
+			}
+			
+			.flight {
+				background-color: #e6e6e6;
+				border-radius: 5px;
+				border-style: solid;
+				padding: 10px;
+				margin-bottom: 5px;
+			}
+			
+			#airline {
+				font-size: 20px;
+				font-weight: bold;
+			}
+			
+			#flightNo {
+				font-weight: bold;
+				font-size: 18px;
+				margin-top: -10px;
+			}
+			
+			.leg-number {
+				text-decoration: underline;
+				font-weight: bold;
 			}
 		</style>
 	</head>
@@ -127,15 +151,33 @@
 				
 				Map<Flight, List<Leg>> flightsAndLegs = DBUtils.getFlightsAndLegs(MyUtils.getStoredConnection(request), originID, destID, deptDateString);
 				
+				Connection conn = MyUtils.getStoredConnection(request);
 				for(Flight flight : flightsAndLegs.keySet()) {
-					out.println(flight.getAirlineID() + "," + flight.getFlightNumber() + ":");
-					for(Leg leg : flightsAndLegs.get(flight)) {
-						out.println(leg.getDepAirportID() + "->" + leg.getArrAirportID());
+					List<Leg> legs = flightsAndLegs.get(flight);
+					Collections.sort(legs);
+					String airlineName = DBUtils.getAirline(conn, flight.getAirlineID()).getName();
+					int flightNo = flight.getFlightNumber();
+					
+					out.println("<div class='flight'>");
+					out.println("<p id='airline'>" + airlineName + "</p>");
+					out.println("<p id='flightNo'>Flight " + flightNo + "</p>");
+					int legNum = 1;
+					for(Leg leg : legs) {
+						Airport from = DBUtils.getAirport(conn, leg.getDepAirportID());
+						Airport to = DBUtils.getAirport(conn, leg.getArrAirportID());
+						
+						out.println("<div class='leg'>");
+						out.println("<p class='leg-number'>Leg " + legNum++ + "</p>");
+						out.print("<p>From: " + from.getName() + "<br>To: " + to.getName() + "<br>");
+						String depTime = leg.getDepTime().replace("-", "/");
+						depTime = depTime.substring(0, depTime.length() - 2);
+						String arrTime = leg.getArrTime().replace("-", "/");
+						arrTime = arrTime.substring(0, arrTime.length() - 2);
+						out.println("Departure Time: " + depTime + "<br>Arrival Time: " + arrTime + "</p>");
+						out.println("</div>");
 					}
+					out.println("</div>");
 				}
-				
-				//out.println(flightsAndLegs.size());
-				//out.println();
 			}
 			%>
 		</div>

@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.flightcrew.beans.Airline;
 import org.flightcrew.beans.Airport;
 import org.flightcrew.beans.Customer;
 import org.flightcrew.beans.Flight;
@@ -45,6 +46,37 @@ public class DBUtils {
 			e.printStackTrace();
 		}
 		return false;
+	}
+	
+	public static Airport getAirport(Connection conn, String airportID) {
+		String sql = "SELECT Name,City,Country FROM Airport WHERE Id = '" + airportID + "'";
+		try {
+			PreparedStatement ps = conn.prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+			if(rs.next()) {
+				String name = rs.getString("Name");
+				String city = rs.getString("City");
+				String country = rs.getString("Country");
+				return new Airport(airportID, name, city, country);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public static Airline getAirline(Connection conn, String airlineID) {
+		String sql = "SELECT Name FROM Airline WHERE Id = '" + airlineID + "'";
+		try {
+			PreparedStatement ps = conn.prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+			if(rs.next()) {
+				return new Airline(airlineID, rs.getString("Name"));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
    	
    	public static Map<Flight, List<Leg>> getFlightsAndLegs(Connection conn, String origin, String dest, String deptDate) {
