@@ -8,21 +8,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.flightcrew.beans.Airport;
+import org.flightcrew.beans.Auctions;
 import org.flightcrew.beans.Flight;
+import org.flightcrew.beans.Includes;
 import org.flightcrew.beans.Leg;
+import org.flightcrew.beans.Reservation;
 import org.flightcrew.beans.UserAccount;
 
 //server: sql9.freemysqlhosting.net
 //user: sql9208791
 //pass: HALlmFZxtp
 
-//TODO: Customer level transaction page
-//TODO: Travel itinerary for a given reservation
-//TODO: A customer's current bid on a given reverse auction
-//TODO: The bid history for a given reverse auction
-//TODO: A history of all current and past reservations a customer has made
-//TODO: Personalized flight suggestion list
-//TODO: Best-Seller list of flights
+
 
 //TODO: Customer-Representative level transaction page
 //TODO: Record a reservation
@@ -54,12 +51,6 @@ public class DBUtils {
 		return false;
 	}
 	
-	public static Leg getTravelItinerary() {
-    	//String sql = "Select * from Legs"//
-                //+ " where a.Username = ? ";
-   		return new Leg("", 0, 0, "", "", "", "");
-   	}
-   	
    	public static List<Flight> getFlights(Connection conn, String origin, String dest, int deptDay, int retDay) {
 		List<Flight> flights = new ArrayList<>();
 		String sql = "SELECT * FROM Flight";
@@ -157,4 +148,83 @@ public class DBUtils {
         }
         return null;
     }
+    
+  //TODO: Customer level transaction page
+    
+	//TODO: Travel itinerary for a given reservation
+	public static Leg getTravelItinerary() {
+    	//String sql = "Select * from Legs"//
+                //+ " where a.Username = ? ";
+   		//return new Leg("", 0, 0, "", "", "", "");
+		throw new UnsupportedOperationException("Not supported yet.");
+   	}
+	
+	  //TODO: A customer's current bid on a given reverse auction
+	public static double getCurrentBid() {
+		
+//        String sql = "Select NYOP from Auctions" //
+//                + " where AccountNo = ? and AirlineID = ? and FlightNo = ? and Date = ?";
+// 
+//        PreparedStatement pstm = conn.prepareStatement(sql);
+//        pstm.setString(1, userName);
+//        pstm.setString(2, password);
+//        ResultSet rs = pstm.executeQuery();
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+	
+	  //TODO: The bid history for a given reverse auction
+	
+	
+	//TODO: CHECK
+	//TODO: A history of all current and past reservations a customer has made
+	public static List<Reservation> getAllPastReservations(Connection conn, int accountNo) throws SQLException {
+		
+        List<Reservation> reservations = new ArrayList<>();
+		
+		String sql = "Select * from Reservation" //
+                + " where AccountNo = ?";
+ 
+        PreparedStatement pstm = conn.prepareStatement(sql);
+        pstm.setInt(0, accountNo);
+        ResultSet rs = pstm.executeQuery();
+        
+		while(rs.next()) {
+			Reservation reservation = new Reservation(rs.getInt("ResrNo"), rs.getDate("ResrDate").toString(), rs.getDouble("BookingFee"), rs.getDouble("TotalFare"), rs.getInt("RepSSN"), rs.getInt("AccountNo"));
+			reservations.add(reservation);
+		}
+		
+		return reservations;
+	}
+	
+	  //TODO: Personalized flight suggestion list
+	public static List<Flight> getPersonalizedFlights(Connection conn, int accountNo) {
+//		List<Flight> flights = new ArrayList<>();
+//		
+//		String sql = "Select * from Reservation" //
+//                + " where AccountNo = ?";
+//		
+//		return flights;
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+	
+	  //TODO: CHECK
+	  //TODO: Best-Seller list of flights  
+	public static List<Includes> getBestSellerList(Connection conn) throws SQLException {
+		List<Includes> bestSellers = new ArrayList<>();
+		
+		String sql = "Select * from Includes" //
+                + " Group by AirlineID, FlightNo" //
+                + " Order by Count(*) DESC";
+		
+        PreparedStatement pstm = conn.prepareStatement(sql);
+        ResultSet rs = pstm.executeQuery();
+        
+		while(rs.next()) {
+			Includes bestSeller = new Includes(rs.getInt("ResrNo"), rs.getString("AirlineID"), rs.getInt("FlightNo"), rs.getInt("LegNo"), rs.getDate("Date").toString());
+			bestSellers.add(bestSeller);
+		}
+		
+		return bestSellers;
+	}
+	
 }
