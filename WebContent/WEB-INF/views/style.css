@@ -117,4 +117,28 @@
 .btn-secondary {
 	color: #383838;
 }
+
+#acc-no-input {
+	margin-left: 5px;
+}
+
+#acc-no-submit {
+	margin-left: 15px;
+}
+
+#rep-err-msg {
+	color: red; margin-left: 60px; margin-top: 20px; margin-bottom: -20px;
+}
+
+#rep-suc-msg {
+	color: green; margin-left: 60px; margin-top: 20px; margin-bottom: -10px;
+}
+
+#res-no {
+	margin-top: 1px;
+}
+
+#res-no, #res-date, #book-fee, #tot-fare, #rep-id, #acc-no3, #air-id, #flight-no, #leg-no, #flight-date {
+	margin-bottom: 6px;
+}
 </style>
