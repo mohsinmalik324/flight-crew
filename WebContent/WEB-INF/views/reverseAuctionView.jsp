@@ -19,7 +19,7 @@
 	<body>
 		<jsp:include page="_header.jsp"></jsp:include>
 		reverseAuction
-		<!-- Start of copy -->
+		<!-- Start of copy --> <%--
 		
 		<div class="middle">
 			<%
@@ -261,7 +261,7 @@
 			}
 			%>
 		</div>
-		
+		--%>
 		<!-- End of copy -->
 		<jsp:include page="_footer.jsp"></jsp:include>
 	</body>

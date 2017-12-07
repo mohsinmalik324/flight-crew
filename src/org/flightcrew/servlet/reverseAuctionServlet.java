@@ -23,7 +23,8 @@ public class reverseAuctionServlet extends HttpServlet {
             throws ServletException, IOException {
  
         // Forward to /WEB-INF/views/accountView.jsp
-        RequestDispatcher dispatcher = this.getServletContext().getRequestDispatcher("/WEB-INF/views/reverseAuctionView.jsp");
+    	request.getSession().setAttribute("isReverseAuction", 1);
+        RequestDispatcher dispatcher = this.getServletContext().getRequestDispatcher("/WEB-INF/views/homeView.jsp");
  
         dispatcher.forward(request, response);
     }

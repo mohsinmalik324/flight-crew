@@ -3,10 +3,10 @@
 <nav class="navbar navbar-inverse">
 	<div class="container-fluid">
 		<div class="navbar-header">
-			<a class="navbar-brand" href="${pageContext.request.contextPath}/">Flight Crew</a>
+			<a class="navbar-brand" href="${pageContext.request.contextPath}/homeLink">Flight Crew</a>
 		</div>
 		<ul class="nav navbar-nav">
-			<li><a href="${pageContext.request.contextPath}/">Home</a></li>
+			<li><a href="${pageContext.request.contextPath}/homeLink">Home</a></li>
 			<li><a href="${pageContext.request.contextPath}/reverseAuction">Reverse Auction</a></li>
 			<li><a href="${pageContext.request.contextPath}/account">My Account</a></li>
 		</ul>

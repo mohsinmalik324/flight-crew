@@ -74,6 +74,13 @@
 		
 		<div class="middle">
 			<%
+		  
+			if(request.getSession().getAttribute("isReverseAuction") != null) {
+				String infoMsg = "First select an origin and destination.";
+				out.println("<p class='alert alert-info' id='errMsg'>" + "<b>Reverse Auction</b><br>" + infoMsg + "</p>");
+       			request.getSession().removeAttribute("isReverseAuction");
+    			request.getSession().setAttribute("isReverseAuction2", 1);
+			} 
 			String err = request.getParameter("err");
 			if(err != null) {
 				String errMsg = null;
@@ -101,6 +108,11 @@
 					response.sendRedirect("home");
 					return;
 				}
+				if(request.getSession().getAttribute("isReverseAuction3") != null) {
+					String infoMsg = "Now enter passengers information.";
+					out.println("<p class='alert alert-info' id='errMsg'>" + "<b>Reverse Auction</b><br>" + infoMsg + "</p>");
+					
+				} 
 				out.println("<form method='post' action='home'>");
 				for(int i = 1; i <= numPeople; i++) {
 					out.println("<div class='person'>");
@@ -117,6 +129,12 @@
 					out.println("<label>Meal:</label><br><select class='form-group' name='meal-" + i + "'><option>Chips</option><option>Fish and Chips</option><option>Sushi</option></select>");
 					out.println("<br><label>Class:</label><br><select class='form-group' name='class-" + i + "'><option>First</option><option>Business</option><option>Economy</option></select>");
 					out.println("</div>");
+				}
+				
+				if(request.getSession().getAttribute("isReverseAuction3") != null) {
+					
+					out.println("<label for='nyop'>Name Your Own Price:  $</label>");
+					out.println("<input id='nyop' name='nyop' type='date' placeholder='Total price'><br>");
 				}
 				out.println("<br><button id='person-submit' type='submit' class='btn btn-default'>Submit</button>");
 				out.println("</form>");
@@ -240,6 +258,13 @@
 						return;
 					}
 				}
+				
+				if(request.getSession().getAttribute("isReverseAuction2") != null) {
+					String infoMsg = "Now select a flight.";
+					out.println("<p class='alert alert-info' id='errMsg'>" + "<b>Reverse Auction</b><br>" + infoMsg + "</p>");
+       				request.getSession().removeAttribute("isReverseAuction2");
+    				request.getSession().setAttribute("isReverseAuction3", 1);
+				} 
 				
 				if(rt) {
 					out.println("<p class='alert alert-info'>Select a return flight.</p>");
