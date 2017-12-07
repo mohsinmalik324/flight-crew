@@ -312,9 +312,9 @@ public class DBUtils {
 	
 	//TODO: CHECK
 	//TODO: A history of all current and past reservations a customer has made
-	public static List<Reservation> getAllPastReservations(Connection conn, int accountNo) throws SQLException {
+	public static ArrayList<Reservation> getReservations(Connection conn, int accountNo) throws SQLException {
 		
-        List<Reservation> reservations = new ArrayList<>();
+        ArrayList<Reservation> reservations = new ArrayList<>();
 		
 		String sql = "Select * from Reservation" //
                 + " where AccountNo = ?";

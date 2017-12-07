@@ -2,6 +2,7 @@
 <html>
 	<head>
 		<jsp:include page="_head.jsp"></jsp:include>
+		<%@ taglib prefix = "c" uri = "http://java.sun.com/jsp/jstl/core" %>
 	</head>
 	<body>
 		<jsp:include page="_header.jsp"></jsp:include>
@@ -58,6 +59,31 @@
       </tr>
     </tbody>
   </table>
+
+<h2>Reservations</h2>    
+<table class="table table-striped">
+<thead>
+<tr>
+<td>Reservation Number</td>
+<td>Reservation Date</td>
+<td>Booking Fee</td>
+<td>Total Fare</td>
+<td>Representative SSN</td>
+<td>Account Number</td>
+</tr>
+</thead>
+<c:forEach items="${reservations}" var="obj">
+    <tr>
+       <td>${obj.resrNo}</td>
+       <td>${obj.resrDate}</td>
+       <td>${obj.bookingFee}</td>
+       <td>${obj.totalFare}</td>
+       <td>${obj.repSSN}</td>
+       <td>${obj.accountNo}</td>
+    </tr>
+</c:forEach>
+</table>
+
 </div>
 		
 		
