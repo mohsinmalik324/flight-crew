@@ -99,6 +99,7 @@
 			%>
 			${mailingList}<br>
 			<%
+				request.getSession().removeAttribute("mailingList");
 	        }
 			%>
 			
@@ -109,7 +110,17 @@
 		
 		  <h2>Flight Suggestions</h2>      
 		  <table class="table table-striped">
-		  
+		  	<%
+			if(request.getParameter("gen-flsuggestions-submit") != null) {
+			%>
+			${flightSuggestions}<br>
+			<%
+				request.getSession().removeAttribute("flightSuggestions");
+	        }
+			%>
+			<form method="post" action="${pageContext.request.contextPath}/account">
+				<button type="submit" name ="gen-flsuggestions-submit" id="gen-flsuggestions-submit" class="btn btn-default">Generate Flight Suggestions</button>
+			</form>
 		  </table>
   
 		</div>

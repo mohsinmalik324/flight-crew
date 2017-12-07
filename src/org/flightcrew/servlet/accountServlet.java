@@ -96,6 +96,19 @@ public class accountServlet extends HttpServlet {
 	    	
 	    	
 	    	if(request.getParameter("gen-ml-submit") != null) {
+	    		List<String> ml = null;
+	    		try {
+					ml = DBUtils.getMailingList(MyUtils.getStoredConnection(request));
+					StringBuilder sb = new StringBuilder();
+					for(String s : ml) {
+						sb.append(s);
+						sb.append("<br>");
+					}
+					
+					request.getSession().setAttribute("mailingList", sb.toString());
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
 	    	}
 	    		
 	    	if(request.getParameter("res-submit") != null) {
@@ -133,6 +146,22 @@ public class accountServlet extends HttpServlet {
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
+	    	}
+	    	
+	    	if(request.getParameter("gen-flsuggestions-submit") != null) {
+	    		/*List<String> ml = null;
+	    		try {
+					ml = DBUtils.getMailingList(MyUtils.getStoredConnection(request));
+					StringBuilder sb = new StringBuilder();
+					for(String s : ml) {
+						sb.append(s);
+						sb.append("<br>");
+					}
+					
+					request.getSession().setAttribute("mailingList", sb.toString());
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}*/
 	    	}
 	    	
     		dispatcher = this.getServletContext().getRequestDispatcher("/WEB-INF/views/repView.jsp");

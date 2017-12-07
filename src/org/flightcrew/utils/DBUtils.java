@@ -630,16 +630,22 @@ public class DBUtils {
 	
 	//TODO: Produce a list of flight suggestions for a given customer (based on that customer's past reservations)
 	//TODO: Personalized flight suggestion list
-	public static List<Flight> getPersonalizedFlights(Connection conn, int accountNo) {
-	
-//		List<Flight> flights = new ArrayList<>();
-//		
-//		String sql = "Select DISTINCT * from Reservation" //
-//              + " where AccountNo = ?";
-//		
-//		return flights;
+	public static List<Flight> getPersonalizedFlights(Connection conn, int accountNo) throws SQLException {
+		List<Flight> flights = new ArrayList<>();
+        /*String sql = "Select DISTINCT * from Reservation where AccountNo = ? ";
+        
+		PreparedStatement pstm = conn.prepareStatement(sql);
 		
-		throw new UnsupportedOperationException("Not supported yet.");
+        pstm.setInt(1, accountNo);
+        		
+        ResultSet rs = pstm.executeQuery();
+        
+		while(rs.next()) {
+			Flight flight = new String(rs.getString("Email"));
+			flights.add(flight);
+		}
+		*/
+		return flights;
 	}
 	
 	public static Double[] getFareForFlight(Connection conn, Flight flight, boolean isRoundtrip) throws SQLException {
