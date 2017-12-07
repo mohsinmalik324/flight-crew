@@ -78,34 +78,41 @@
 				color: #666;
 			}
 			
-			#errMsg {
+			.middle {
+				width: 350px;
+				margin: auto;
 				text-align: center;
+			}
+			
+			#errMsg {
 				margin-bottom: -20px;
 			}
 		</style>
 	</head>
 	<body>
 		<jsp:include page="_header.jsp"></jsp:include>
-		<%
-		String err = request.getParameter("err");
-		if(err != null) {
-			String errMsg = null;
-			if(err.equals("1")) {
-				errMsg = "Zipcode must be a positive integer.";
-			} else if(err.equals("2")) {
-				errMsg = "Passwords do not match.";
-			} else if(err.equals("3")) {
-				errMsg = "An unexpected error occured. Try again.";
-			} else if(err.equals("4")) {
-				errMsg = "That user already exists.";
-			} else if(err.equals("5")) {
-				errMsg = "Please enter a valid email address.";
+		<div class="middle">
+			<%
+			String err = request.getParameter("err");
+			if(err != null) {
+				String errMsg = null;
+				if(err.equals("1")) {
+					errMsg = "Zipcode must be a positive integer.";
+				} else if(err.equals("2")) {
+					errMsg = "Passwords do not match.";
+				} else if(err.equals("3")) {
+					errMsg = "An unexpected error occured. Try again.";
+				} else if(err.equals("4")) {
+					errMsg = "That user already exists.";
+				} else if(err.equals("5")) {
+					errMsg = "Please enter a valid email address.";
+				}
+				if(errMsg != null) {
+					out.println("<p class='alert alert-danger' id='errMsg'>" + errMsg + "</p>");
+				}
 			}
-			if(errMsg != null) {
-				out.println("<p class='alert alert-danger' id='errMsg'>" + errMsg + "</p>");
-			}
-		}
-		%>
+			%>
+		</div>
 		<div class="container">
 			<form method="POST" action="${pageContext.request.contextPath}/signup" class="form-signin">
 				<h1 class="form-signin-heading text-muted">Signup</h1>
@@ -129,7 +136,6 @@
 				<a href="${pageContext.request.contextPath}/signup" tabindex="5" class="forgot-password">Login</a>
 			</div>
 		</div>
-		
 		<jsp:include page="_footer.jsp"></jsp:include>
 	</body>
 </html>
