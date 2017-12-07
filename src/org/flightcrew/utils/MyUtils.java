@@ -84,5 +84,12 @@ public class MyUtils {
         cookieUserName.setMaxAge(0);
         response.addCookie(cookieUserName);
     }
+    
+	public static Double getSmallestFare(Double[] fares) {
+		if(fares[0] != null) return fares[0];
+		if(fares[1] != null) return fares[1];
+		if(fares[2] != null) return fares[2];
+		return Double.MAX_VALUE;
+	}
  
 }

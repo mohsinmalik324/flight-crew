@@ -27,6 +27,7 @@ public class homeLinkServlet extends HttpServlet {
        request.getSession().removeAttribute("isReverseAuction");
        request.getSession().removeAttribute("isReverseAuction2");
        request.getSession().removeAttribute("isReverseAuction3");
+       request.getSession().removeAttribute("fares");
        RequestDispatcher dispatcher = this.getServletContext().getRequestDispatcher("/WEB-INF/views/homeView.jsp");
         
        dispatcher.forward(request, response);
