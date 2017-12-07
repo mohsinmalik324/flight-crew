@@ -44,6 +44,29 @@
 				text-decoration: underline;
 				font-weight: bold;
 			}
+			
+			.person-text {
+				font-weight: bold;
+				font-size: 20px;
+			}
+			
+			#person-submit {
+				margin-bottom: 10px;
+			}
+			
+			.person {
+				border-style: solid;
+				border-radius: 8px;
+				margin-bottom: 15px;
+				padding-top: 10px;
+				padding-bottom: 10px;
+				background-color: #e6e6e6;
+			}
+			
+			.checkbox-self {
+				width: 250px;
+				margin: auto;
+			}
 		</style>
 	</head>
 	<body>
@@ -65,6 +88,51 @@
 					out.println("<p class='alert alert-danger' id='errMsg'>" + errMsg + "</p>");
 				}
 			}
+			String rtString = request.getParameter("rt");
+			boolean rt = rtString == null ? false : rtString.equals("1");
+			String lpString = request.getParameter("lp");
+			boolean lp = lpString == null ? false : lpString.equals("1");
+			if(lp) {
+				String numPeopleString = request.getParameter("num-people");
+				int numPeople = 0;
+				try {
+					numPeople = Integer.valueOf(numPeopleString);
+				} catch(NumberFormatException e) {
+					response.sendRedirect("home");
+					return;
+				}
+				out.println("<form method='post' action='home'>");
+				for(int i = 1; i <= numPeople; i++) {
+					out.println("<div class='person'>");
+					out.println("<p class='person-text'>Person " + i + "</p>");
+					if(i == 1) {
+						out.println("<div class='checkbox checkbox-self'><input type='checkbox' name='include-self' checked> Tick if you want yourself as Person 1 (no need to fill info for Person 1 if ticked)</div>");
+					}
+					out.println("<div class='form-group'><input required type='text' name='fname-" + i + "' placeholder='First Name'></div>");
+					out.println("<div class='form-group'><input required type='text' name='lname-" + i + "' placeholder='Last Name'></div>");
+					out.println("<div class='form-group'><input required type='text' name='address-" + i + "' placeholder='Address'></div>");
+					out.println("<div class='form-group'><input required type='text' name='city-" + i + "' placeholder='City'></div>");
+					out.println("<div class='form-group'><input required type='text' name='state-" + i + "' placeholder='State'></div>");
+					out.println("<div class='form-group'><input required type='text' name='zip-" + i + "' placeholder='Zip Code'></div>");
+					out.println("<label>Meal:</label><br><select class='form-group' name='meal-" + i + "'><option>Chips</option><option>Fish and Chips</option><option>Sushi</option></select>");
+					out.println("<br><label>Class:</label><br><select class='form-group' name='class-" + i + "'><option>First</option><option>Business</option><option>Economy</option></select>");
+					out.println("</div>");
+				}
+				out.println("<br><button id='person-submit' type='submit' class='btn btn-default'>Submit</button>");
+				out.println("</form>");
+				if(rt) {
+					
+					session.setAttribute("rtFlightNo", "");
+				} else {
+					String flightNoString = request.getParameter("flightNo");
+					String airlineID = request.getParameter("airlineID");
+					String legs = request.getParameter("legs");
+					session.setAttribute("flightNo", flightNoString);
+					session.setAttribute("airlineID", airlineID);
+					session.setAttribute("legs", legs);
+				}
+				return;
+			}
 			String origin = request.getParameter("origin");
 			String dest = request.getParameter("dest");
 			String deptDateString = request.getParameter("dept-date");
@@ -72,7 +140,7 @@
 			String numPeopleString = request.getParameter("num-people");
 			// Check if none of the fields are available.
 			if(origin == null && dest == null && deptDateString == null && retDateString == null && numPeopleString == null) {%>
-				<form method="get" action="${pageContext.request.contextPath}/">
+				<form method="post" action="${pageContext.request.contextPath}/">
 					<label for="origin">Origin:</label>
 					<select class="form-control" id="origin" name="origin">
 						<%
@@ -96,18 +164,18 @@
 					<input id="dept-date" name="dept-date" type="date"><br>
 					<label for="ret-date">Returning Date:</label>
 					<input id="ret-date" name="ret-date" type="date"><br>
-					<label for="num-people">Number of People</label>
+					<label for="num-people">Number of People:</label>
 					<select class="form-control" id="num-people" name="num-people">
-						<option>1</option>
-						<option>2</option>
-						<option>3</option>
-						<option>4</option>
-						<option>5</option>
-						<option>6</option>
+						<%
+						for(int i = 1; i <= 6; i++) {
+							out.println("<option>" + i + "</option>");
+						}
+						%>
 					</select>
 					<button type="submit" class="btn btn-default">Search</button>
 				</form>
 			<%} else {
+				System.out.println(origin);
 				if(origin.equals(dest)) {
 					response.sendRedirect("home?err=1");
 					return;
@@ -144,12 +212,38 @@
 				
 				// Error checking done, generate flight list below.
 				
+				Object user = request.getSession().getAttribute("loginedUser");
+				
+				// Check if user is logged in.
+				if(user == null) {
+					out.println("<p class='alert alert-warning'>You are not logged in, so you will not be able to book any reservations. You will still be able to look at flights.</p>");
+				}
+				
 				String originID = origin.substring(0, 5).substring(1).substring(0, 3);
 				String destID = dest.substring(0, 5).substring(1).substring(0, 3);
 				
 				//out.println(originID + " " + destID + " " + deptDateString);
 				
 				Map<Flight, List<Leg>> flightsAndLegs = DBUtils.getFlightsAndLegs(MyUtils.getStoredConnection(request), originID, destID, deptDateString);
+				if(flightsAndLegs.isEmpty()) {
+					out.println("<p class='alert alert-info'>No departing flights were found on the specified departure date.</p>");
+					out.println("<a href='home'><button type='submit' class='btn btn-primary'>Go Back</button></a>");
+					return;
+				}
+				
+				Map<Flight, List<Leg>> retFlightsAndLegs = null;
+				if(retDate != null) {
+					retFlightsAndLegs = DBUtils.getFlightsAndLegs(MyUtils.getStoredConnection(request), destID, originID, retDateString);
+					if(retFlightsAndLegs.isEmpty()) {
+						out.println("<p class='alert alert-info'>No returning flights were found on the specified return date.</p>");
+						out.println("<a href='home'><button type='submit' class='btn btn-primary'>Go Back</button></a>");
+						return;
+					}
+				}
+				
+				if(rt) {
+					out.println("<p class='alert alert-info'>Select a return flight.</p>");
+				}
 				
 				Connection conn = MyUtils.getStoredConnection(request);
 				for(Flight flight : flightsAndLegs.keySet()) {
@@ -175,6 +269,23 @@
 						arrTime = arrTime.substring(0, arrTime.length() - 2);
 						out.println("Departure Time: " + depTime + "<br>Arrival Time: " + arrTime + "</p>");
 						out.println("</div>");
+					}
+					if(user != null) {
+						String link = null;
+						int fleg = legs.get(0).getLegNumber();
+						int lleg = legs.get(legs.size() - 1).getLegNumber();
+						if(retDate != null) {
+							link = "home?rt=1&origin=" + dest + "&dest=" + origin + "&dept-date=" + retDateString + "&ret-date=&num-people=" + numPeopleString;
+							link += "&flightNo=" + flightNo + "&airlineID=" + flight.getAirlineID() + "&legs=" + fleg + "-" + lleg;
+						} else {
+							// Submitting return flight. Else submitting one-way.
+							if(rt) {
+								
+							} else {
+								link = "home?num-people=" + numPeopleString + "&rt=0&lp=1&flightNo=" + flightNo + "&airlineID=" + flight.getAirlineID() + "&legs=" + fleg + "-" + lleg;
+							}
+						}
+						out.println("<a href='" + link + "'><button type='submit' class='btn btn-primary'>Book This Flight</button></a>");
 					}
 					out.println("</div>");
 				}
