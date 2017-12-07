@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.flightcrew.beans.Customer;
 import org.flightcrew.beans.UserAccount;
 import org.flightcrew.utils.DBUtils;
 import org.flightcrew.utils.MyUtils;
@@ -87,6 +88,15 @@ public class loginServlet extends HttpServlet {
         else {
             HttpSession session = request.getSession();
             MyUtils.storeLoginedUser(session, user);
+            try {
+				MyUtils.storeCustomer(session, DBUtils.getCustomer(MyUtils.getStoredConnection(request), userName));
+				MyUtils.storePerson(session, DBUtils.getPerson(MyUtils.getStoredConnection(request), userName));
+				Customer cust = (Customer)session.getAttribute("customer");
+				MyUtils.storeReservations(session, DBUtils.getReservations(MyUtils.getStoredConnection(request), cust.getAccountNo()));
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
  
             // Redirect to userInfo page.
             response.sendRedirect(request.getContextPath() + "/account");
