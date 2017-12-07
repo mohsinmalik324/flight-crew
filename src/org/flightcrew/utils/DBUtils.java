@@ -68,6 +68,17 @@ public class DBUtils {
 		return null;
 	}
 	
+	public static boolean addIncludesForReturnTrip(Connection conn, String airlineID, int flightNo, int firstLeg, int lastLeg, int resrNo) {
+		for(int i = firstLeg; i <= lastLeg; i++) {
+			String sql = "INSERT INTO Includes VALUES (" + resrNo + ", '" + airlineID + "', " + flightNo + ", " + i + ", NOW())";
+			if(!runQuery(conn, sql)) {
+				//System.out.println("here3");
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	public static int addReservation(Connection conn, Customer c, Map<Person, String> peopleAndOther, String airlineID, int flightNo, boolean rt, int firstLeg, int lastLeg) {
 		double totalFare = 0;
 		for(Person person : peopleAndOther.keySet()) {
@@ -82,10 +93,10 @@ public class DBUtils {
 		double bookingFee = totalFare * .1;
 		try {
 			int resrNo = createReservationGetID(conn, bookingFee, totalFare, -1, c.getAccountNo());
-			conn.commit();
-			System.out.println("resrNo: " + resrNo);
+			//conn.commit();
+			//System.out.println("resrNo: " + resrNo);
 			if(resrNo == -1) {
-				System.out.println("here1");
+				//System.out.println("here1");
 				return -1;
 			}
 			for(Person person : peopleAndOther.keySet()) {
@@ -95,21 +106,21 @@ public class DBUtils {
 				String classs = other[1];
 				String sql = "INSERT INTO ReservationPassenger VALUES (" + resrNo + ", " + person.getId() + ", " + c.getAccountNo() + ", '33F', '" + classs + "', '" + meal + "')";
 				if(!runQuery(conn, sql)) {
-					System.out.println("here2");
+					//System.out.println("here2");
 					return -1;
 				}
 			}
 			for(int i = firstLeg; i <= lastLeg; i++) {
 				String sql = "INSERT INTO Includes VALUES (" + resrNo + ", '" + airlineID + "', " + flightNo + ", " + i + ", NOW())";
 				if(!runQuery(conn, sql)) {
-					System.out.println("here3");
+					//System.out.println("here3");
 					return -1;
 				}
 			}
 			return resrNo;
 		} catch (SQLException e) {
 			e.printStackTrace();
-			System.out.println("here4");
+			//System.out.println("here4");
 			return -1;
 		}
 	}

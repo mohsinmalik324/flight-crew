@@ -173,9 +173,31 @@
 				
 				if(rt) {
 					String retFlightNoString = (String) session.getAttribute("retFlightNo");
+					int retFlightNo = 0;
+					try {
+						retFlightNo = Integer.valueOf(retFlightNoString);
+					} catch(NumberFormatException e) {
+						response.sendRedirect("home?err=4");
+						return;
+					}
 					String retAirlineID = (String) session.getAttribute("retAirlineID");
 					String retLegs = (String) session.getAttribute("retLegs");
-					out.println(retFlightNoString + "," + retAirlineID + "," + retLegs);
+					int retFirstLeg = 0;
+					int retLastLeg = 0;
+					try {
+						String[] retLegsSplit = retLegs.split("-");
+						retFirstLeg = Integer.valueOf(retLegsSplit[0]);
+						retLastLeg = Integer.valueOf(retLegsSplit[1]);
+					} catch(NumberFormatException e) {
+						response.sendRedirect("home?err=4");
+						return;
+					}
+					
+					if(!DBUtils.addIncludesForReturnTrip(MyUtils.getStoredConnection(request), retAirlineID, retFlightNo, retFirstLeg, retLastLeg, resrNo)) {
+						response.sendRedirect("home?err=4");
+						return;
+					}
+					//out.println(retFlightNoString + "," + retAirlineID + "," + retLegs);
 				}
 				
 				out.println("<p class='alert alert-success'>Reservation successfully booked!</p>");
@@ -391,7 +413,9 @@
 						} else {
 							// Submitting return flight. Else submitting one-way.
 							if(rt) {
-								
+								link = "home?rt=1&lp=1&num-people=" + numPeopleString + "&flightNo=" + request.getParameter("flightNo") + "&airlineID="
+									+ request.getParameter("airlineID") + "&legs=" + request.getParameter("legs") + "&retFlightNo=" + flightNo
+									+ "&retAirlineID=" + flight.getAirlineID() + "&retLegs=" + fleg + "-" + lleg;
 							} else {
 								link = "home?num-people=" + numPeopleString + "&rt=0&lp=1&flightNo=" + flightNo + "&airlineID=" + flight.getAirlineID() + "&legs=" + fleg + "-" + lleg;
 							}
