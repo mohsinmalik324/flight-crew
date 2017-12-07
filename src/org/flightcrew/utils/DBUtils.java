@@ -14,6 +14,7 @@ import org.flightcrew.beans.Airport;
 import org.flightcrew.beans.Flight;
 import org.flightcrew.beans.Includes;
 import org.flightcrew.beans.Leg;
+import org.flightcrew.beans.Person;
 import org.flightcrew.beans.Reservation;
 import org.flightcrew.beans.UserAccount;
 
@@ -44,6 +45,52 @@ public class DBUtils {
 			e.printStackTrace();
 		}
 		return false;
+	}
+	
+	public static Person getPerson(Connection conn, int id) {
+		String sql = "SELECT * FROM Person WHERE Id = " + id;
+		try {
+			PreparedStatement ps = conn.prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+			if(rs.next()) {
+				String fname = rs.getString("FirstName");
+				String lname = rs.getString("LastName");
+				String address = rs.getString("Address");
+				String city = rs.getString("City");
+				String state = rs.getString("State");
+				int zip = rs.getInt("ZipCode");
+				return new Person(id, fname, lname, address, city, state, zip);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public static boolean addReservation(Connection conn, int accountNo, Map<Person, String> peopleAndOther, String airlineID, int flightID, int firstLeg, int secondLeg) {
+		double totalFare = 0;
+		double bookingFee = totalFare * .1;
+		try {
+			createReservation(conn, bookingFee, totalFare, -1, accountNo);
+			return true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	public static Person getPerson(Connection conn, String fname, String lname, String address, String city, String state, int zip) {
+		String sql = "SELECT Id FROM Person WHERE FirstName = '" + fname + "' AND LastName = '" + lname + "' AND Address = '" + address + "' AND City = '" + city + "' AND State = '" + state + "' AND ZipCode=" + zip;
+		try {
+			PreparedStatement ps = conn.prepareStatement(sql);
+			ResultSet rs = ps.executeQuery();
+			if(rs.next()) {
+				return new Person(rs.getInt("Id"), fname, lname, address, city, state, zip);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	public static Airport getAirport(Connection conn, String airportID) {
@@ -205,6 +252,21 @@ public class DBUtils {
 			e.printStackTrace();
 		}
 		return airports;
+	}
+	
+	public static Person addPersonGetObject(Connection conn, String fname, String lname, String address, String city, String state, int zip) {
+		int id = getNumberOfRecords(conn, "Person") + 1;
+		String sql = "INSERT INTO Person VALUES (" + id + ", '" + fname + "', '" + lname + "', '" + address + "', '" + city + "', '" + state + "', " + zip + ")";
+		if(!runQuery(conn, sql)) {
+			return null;
+		}
+		return new Person(id, fname, lname, address, city, state, zip);
+	}
+	
+	public static boolean addPerson(Connection conn, String fname, String lname, String address, String city, String state, int zip) {
+		int id = getNumberOfRecords(conn, "Person") + 1;
+		String sql = "INSERT INTO Person VALUES (" + id + ", '" + fname + "', '" + lname + "', '" + address + "', '" + city + "', '" + state + "', " + zip + ")";
+		return runQuery(conn, sql);
 	}
 	
 	//TODO: Add, Edit and Delete information for a customer

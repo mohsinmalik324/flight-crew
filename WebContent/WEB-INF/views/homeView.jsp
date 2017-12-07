@@ -1,4 +1,5 @@
 <%@ page import="java.util.List" %>
+<%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.Calendar" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.Collections" %>
@@ -88,12 +89,82 @@
 					out.println("<p class='alert alert-danger' id='errMsg'>" + errMsg + "</p>");
 				}
 			}
+			Object sessionObj = session.getAttribute("submit");
+			String includeSelf = request.getParameter("include-self");
+			if(sessionObj != null && ((int) sessionObj) == 1 && includeSelf != null) {
+				boolean rt = (boolean) session.getAttribute("rt");
+				int numPeople = (int) session.getAttribute("numPeople");
+				String flightNoString = (String) session.getAttribute("flightNo");
+				String airlineID = (String) session.getAttribute("airlineID");
+				String legs = (String) session.getAttribute("legs");
+				
+				Map<Person, String> peopleAndOther = new HashMap<>();
+				if(includeSelf.equals("on")) {
+					Customer c = (Customer) request.getSession().getAttribute("loginedUser");
+					if(c == null) {
+						response.sendRedirect("home?err=4");
+						return;
+					}
+					Person p = DBUtils.getPerson(MyUtils.getStoredConnection(request), c.getId());
+					if(p == null) {
+						response.sendRedirect("home?err=4");
+						return;
+					}
+					String meal = request.getParameter("meal-1");
+					String classs = request.getParameter("class-1");
+					peopleAndOther.put(p, meal + "-" + classs);
+				}
+				
+				for(int i = (includeSelf.equals("on") ? 2 : 1); i <= numPeople; i++) {
+					String fname = request.getParameter("fname-" + i);
+					String lname = request.getParameter("lname-" + i);
+					String address = request.getParameter("address-" + i);
+					String city = request.getParameter("city-" + i);
+					String state = request.getParameter("state-" + i);
+					String zipString = request.getParameter("zip-" + i);
+					String meal = request.getParameter("meal-" + i);
+					String classs = request.getParameter("class-" + i);
+					int zip = 0;
+					try {
+						zip = Integer.valueOf(zipString);
+					} catch(NumberFormatException e) {
+						response.sendRedirect("home?err=4");
+						return;
+					}
+					Person person = DBUtils.getPerson(MyUtils.getStoredConnection(request), fname, lname, address, city, state, zip);
+					if(person == null) {
+						person = DBUtils.addPersonGetObject(MyUtils.getStoredConnection(request), fname, lname, address, city, state, zip);
+					}
+					if(person == null) {
+						response.sendRedirect("home?err=4");
+						return;
+					}
+					peopleAndOther.put(person, meal + "-" + classs);
+				}
+				
+				
+				
+				if(rt) {
+					String retFlightNoString = (String) session.getAttribute("retFlightNo");
+					String retAirlineID = (String) session.getAttribute("retAirlineID");
+					String retLegs = (String) session.getAttribute("retLegs");
+					out.println(retFlightNoString + "," + retAirlineID + "," + retLegs);
+				}
+				return;
+			}
 			String rtString = request.getParameter("rt");
 			boolean rt = rtString == null ? false : rtString.equals("1");
 			String lpString = request.getParameter("lp");
 			boolean lp = lpString == null ? false : lpString.equals("1");
 			if(lp) {
 				String numPeopleString = request.getParameter("num-people");
+				String flightNoString = request.getParameter("flightNo");
+				String airlineID = request.getParameter("airlineID");
+				String legs = request.getParameter("legs");
+				if(numPeopleString == null || flightNoString == null || airlineID == null || legs == null) {
+					response.sendRedirect("home?err=4");
+					return;
+				}
 				int numPeople = 0;
 				try {
 					numPeople = Integer.valueOf(numPeopleString);
@@ -106,7 +177,7 @@
 					out.println("<div class='person'>");
 					out.println("<p class='person-text'>Person " + i + "</p>");
 					if(i == 1) {
-						out.println("<div class='checkbox checkbox-self'><input type='checkbox' name='include-self' checked> Tick if you want yourself as Person 1 (no need to fill info for Person 1 if ticked)</div>");
+						out.println("<div class='checkbox checkbox-self'><input type='checkbox' name='include-self' checked> Tick if you want yourself as Person 1 (no need to fill info for Person 1 if ticked EXCEPT meal and class)</div>");
 					}
 					out.println("<div class='form-group'><input required type='text' name='fname-" + i + "' placeholder='First Name'></div>");
 					out.println("<div class='form-group'><input required type='text' name='lname-" + i + "' placeholder='Last Name'></div>");
@@ -120,19 +191,29 @@
 				}
 				out.println("<br><button id='person-submit' type='submit' class='btn btn-default'>Submit</button>");
 				out.println("</form>");
+				
+				session.setAttribute("numPeople", numPeople);
+				session.setAttribute("flightNo", flightNoString);
+				session.setAttribute("airlineID", airlineID);
+				session.setAttribute("legs", legs);
+				session.setAttribute("rt", rt);
+				session.setAttribute("submit", 1);
+				
 				if(rt) {
-					
-					session.setAttribute("rtFlightNo", "");
-				} else {
-					String flightNoString = request.getParameter("flightNo");
-					String airlineID = request.getParameter("airlineID");
-					String legs = request.getParameter("legs");
-					session.setAttribute("flightNo", flightNoString);
-					session.setAttribute("airlineID", airlineID);
-					session.setAttribute("legs", legs);
+					String retFlightNo = request.getParameter("retFlightNo");
+					String retAirlineID = request.getParameter("retAirlineID");
+					String retLegs = request.getParameter("retLegs");
+					if(retFlightNo == null || retAirlineID == null || retLegs == null) {
+						response.sendRedirect("home?err=4");
+						return;
+					}
+					session.setAttribute("retFlightNo", retFlightNo);
+					session.setAttribute("retAirlineID", retAirlineID);
+					session.setAttribute("retLegs", retLegs);
 				}
 				return;
 			}
+			session.setAttribute("submit", 0);
 			String origin = request.getParameter("origin");
 			String dest = request.getParameter("dest");
 			String deptDateString = request.getParameter("dept-date");
