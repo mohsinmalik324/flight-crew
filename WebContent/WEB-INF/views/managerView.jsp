@@ -5,7 +5,7 @@
 	</head>
 	<body>
 		<jsp:include page="_header.jsp"></jsp:include>
-		Account View: Hello <b>${loginedUser.userName} </b>
+		Manager View: Hello <b>${loginedUser.userName} </b>
 		<jsp:include page="_footer.jsp"></jsp:include>
 	</body>
 </html>

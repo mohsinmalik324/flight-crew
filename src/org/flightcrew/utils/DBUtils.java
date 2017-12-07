@@ -16,6 +16,7 @@ import org.flightcrew.beans.Includes;
 import org.flightcrew.beans.Leg;
 import org.flightcrew.beans.Reservation;
 import org.flightcrew.beans.UserAccount;
+import org.flightcrew.beans.UserAccount.AccountType;
 
 //server: sql9.freemysqlhosting.net
 //user: sql9208791
@@ -241,6 +242,7 @@ public class DBUtils {
     public static UserAccount findUser(Connection conn, //
             String userName, String password) throws SQLException {
  
+    	// Try finding a customer account first.
         String sql = "Select a.Username, a.Password from Customer a " //
                 + " where a.Username = ? and a.password= ?";
  
@@ -250,13 +252,33 @@ public class DBUtils {
         ResultSet rs = pstm.executeQuery();
  
         if (rs.next()) {
-            //String type = rs.getString("AccountType");
             UserAccount user = new UserAccount();
             user.setUserName(userName);
             user.setPassword(password);
-            //user.setType(AccountType.valueOf(type));
+            user.setType(AccountType.Customer);
             return user;
+        } else {
+        	// If no customer account exists, try employee account.
+        	sql = "Select a.Username, a.Password, a.IsManager from Employee a " //
+                    + " where a.Username = ? and a.password= ?";
+     
+        	pstm = null;
+            pstm = conn.prepareStatement(sql);
+            pstm.setString(1, userName);
+            pstm.setString(2, password);
+            rs = null;
+            rs = pstm.executeQuery();
+     
+            if (rs.next()) {
+                UserAccount user = new UserAccount();
+                user.setUserName(userName);
+                user.setPassword(password);
+                if(rs.getInt("IsManager") > 0) user.setType(AccountType.Manager);
+                else user.setType(AccountType.Representative);
+                return user;
+            }
         }
+        // Login doesn't match customer or employee account.
         return null;
     }
  
