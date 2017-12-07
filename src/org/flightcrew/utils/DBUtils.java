@@ -68,16 +68,70 @@ public class DBUtils {
 		return null;
 	}
 	
-	public static boolean addReservation(Connection conn, int accountNo, Map<Person, String> peopleAndOther, String airlineID, int flightID, int firstLeg, int secondLeg) {
+	public static int addReservation(Connection conn, Customer c, Map<Person, String> peopleAndOther, String airlineID, int flightNo, boolean rt, int firstLeg, int lastLeg) {
 		double totalFare = 0;
+		for(Person person : peopleAndOther.keySet()) {
+			String other = peopleAndOther.get(person);
+			String classs = other.split("-")[1];
+			try {
+				totalFare += getFare(conn, airlineID, flightNo, rt ? "roundtrip" : "oneway", classs);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
 		double bookingFee = totalFare * .1;
 		try {
-			createReservation(conn, bookingFee, totalFare, -1, accountNo);
-			return true;
+			int resrNo = createReservationGetID(conn, bookingFee, totalFare, -1, c.getAccountNo());
+			conn.commit();
+			System.out.println("resrNo: " + resrNo);
+			if(resrNo == -1) {
+				System.out.println("here1");
+				return -1;
+			}
+			for(Person person : peopleAndOther.keySet()) {
+				addPassenger(conn, person.getId(), c.getAccountNo());
+				String[] other = peopleAndOther.get(person).split("-");
+				String meal = other[0];
+				String classs = other[1];
+				String sql = "INSERT INTO ReservationPassenger VALUES (" + resrNo + ", " + person.getId() + ", " + c.getAccountNo() + ", '33F', '" + classs + "', '" + meal + "')";
+				if(!runQuery(conn, sql)) {
+					System.out.println("here2");
+					return -1;
+				}
+			}
+			for(int i = firstLeg; i <= lastLeg; i++) {
+				String sql = "INSERT INTO Includes VALUES (" + resrNo + ", '" + airlineID + "', " + flightNo + ", " + i + ", NOW())";
+				if(!runQuery(conn, sql)) {
+					System.out.println("here3");
+					return -1;
+				}
+			}
+			return resrNo;
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return false;
+			System.out.println("here4");
+			return -1;
 		}
+	}
+	
+	private static void addPassenger(Connection conn, int id, int accountNo) throws SQLException {
+		String sql = "SELECT * FROM Passenger WHERE Id = " + id + " AND AccountNo = " + accountNo;
+		PreparedStatement ps = conn.prepareStatement(sql);
+		ResultSet rs = ps.executeQuery();
+		if(!rs.next()) {
+			sql = "INSERT INTO Passenger VALUES (" + id + ", " + accountNo + ")";
+			runQuery(conn, sql);
+		}
+	}
+	
+	public static int getFare(Connection conn, String airlineID, int flightNo, String fareType, String classs) throws SQLException {
+		String sql = "SELECT Fare FROM Fare WHERE AirlineID = '" + airlineID + "' AND FlightNo = " + flightNo + " AND FareType = '" + fareType.toLowerCase() + "' AND Class = '" + classs.toLowerCase() + "'";
+		PreparedStatement ps = conn.prepareStatement(sql);
+		ResultSet rs = ps.executeQuery();
+		if(rs.next()) {
+			return rs.getInt("Fare");
+		}
+		return 0;
 	}
 	
 	public static Person getPerson(Connection conn, String fname, String lname, String address, String city, String state, int zip) {
@@ -277,7 +331,8 @@ public class DBUtils {
 		int accountNumber = getNumberOfRecords(conn, "Customer") + 1;
 		String sql = "INSERT INTO Person VALUES (" + id + ", '" + fname + "', '" + lname + "', '" + address + "', '" + city + "', '" + state + "', " + zip + ")";
 		String sql2 = "INSERT INTO Customer VALUES (" + id + ", " + accountNumber + ", NULL, '" + email + "', NOW(), NULL, '" + username + "', '" + password + "')";
-		return runQuery(conn, sql) && runQuery(conn, sql2);
+		String sql3 = "INSERT INTO Passenger VALUES (" + id + ", " + accountNumber + ")";
+		return runQuery(conn, sql) && runQuery(conn, sql2) && runQuery(conn, sql3);
 	}
 	
 	public static boolean updateUser(Connection conn, int accountID, String fname, String lname, String address, String city, String state, int zip, String email, String username, String password, String ccNo, int rating, String curUser) {
@@ -420,19 +475,41 @@ public class DBUtils {
 		
 		int resrNo = getNumberOfRecords(conn, "Reservation") + 1;
 		String sql = "INSERT INTO Reservation (ResrNo, ResrDate, BookingFee, TotalFare, RepSSN, AccountNo)"//
-                + " VALUES (?, NOW(), ?, ?, ?, ?)";
+                + " VALUES (?, NOW(), ?, ?, " + (repSSN == -1 ? "NULL" : "?") + ", ?)";
 		
 		PreparedStatement pstm = conn.prepareStatement(sql);
-        pstm.setInt(1, resrNo);
-        pstm.setDouble(2, bookingFee);
-        pstm.setDouble(3, totalFare);
-        pstm.setInt(4, repSSN);
-        pstm.setInt(5, accountNo);
+		int num = 1;
+        pstm.setInt(num++, resrNo);
+        pstm.setDouble(num++, bookingFee);
+        pstm.setDouble(num++, totalFare);
+        if(repSSN != -1) {
+        	pstm.setInt(num++, repSSN);
+        }
+        pstm.setInt(num++, accountNo);
         
         return pstm.execute();
 	}
 	
-
+	public static int createReservationGetID(Connection conn, double bookingFee, double totalFare, int repSSN, int accountNo) throws SQLException {
+		
+		int resrNo = getNumberOfRecords(conn, "Reservation") + 1;
+		String sql = "INSERT INTO Reservation (ResrNo, ResrDate, BookingFee, TotalFare, RepSSN, AccountNo)"//
+                + " VALUES (?, NOW(), ?, ?, " + (repSSN == -1 ? "NULL" : "?") + ", ?)";
+		
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		int num = 1;
+        pstm.setInt(num++, resrNo);
+        pstm.setDouble(num++, bookingFee);
+        pstm.setDouble(num++, totalFare);
+        if(repSSN != -1) {
+        	pstm.setInt(num++, repSSN);
+        }
+        pstm.setInt(num++, accountNo);
+        
+        pstm.execute();
+        
+        return resrNo;
+	}
 	
 	//TODO: COMPLETED Produce customer mailing lists
 	public static List<String> getMailingList(Connection conn) throws SQLException {

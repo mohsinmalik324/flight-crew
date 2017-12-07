@@ -84,6 +84,8 @@
 					errMsg = "Return Date must come after Departure Date.";
 				} else if(err.equals("3")) {
 					errMsg = "Departure Date must be specified.";
+				} else if(err.equals("4")) {
+					errMsg = "An unexpected error occured. Try again.";
 				}
 				if(errMsg != null) {
 					out.println("<p class='alert alert-danger' id='errMsg'>" + errMsg + "</p>");
@@ -98,13 +100,33 @@
 				String airlineID = (String) session.getAttribute("airlineID");
 				String legs = (String) session.getAttribute("legs");
 				
+				int flightNo = 0;
+				try {
+					flightNo = Integer.valueOf(flightNoString);
+				} catch(NumberFormatException e) {
+					response.sendRedirect("home?err=4");
+					return;
+				}
+				
+				int firstLeg = 0;
+				int lastLeg = 0;
+				try {
+					String[] legsSplit = legs.split("-");
+					firstLeg = Integer.valueOf(legsSplit[0]);
+					lastLeg = Integer.valueOf(legsSplit[1]);
+				} catch(NumberFormatException e) {
+					response.sendRedirect("home?err=4");
+					return;
+				}
+				
 				Map<Person, String> peopleAndOther = new HashMap<>();
+				UserAccount ua = (UserAccount) request.getSession().getAttribute("loginedUser");
+				Customer c = DBUtils.getCustomer(MyUtils.getStoredConnection(request), ua.getUserName());
+				if(c == null) {
+					response.sendRedirect("home?err=4");
+					return;
+				}
 				if(includeSelf.equals("on")) {
-					Customer c = (Customer) request.getSession().getAttribute("loginedUser");
-					if(c == null) {
-						response.sendRedirect("home?err=4");
-						return;
-					}
 					Person p = DBUtils.getPerson(MyUtils.getStoredConnection(request), c.getId());
 					if(p == null) {
 						response.sendRedirect("home?err=4");
@@ -142,7 +164,12 @@
 					peopleAndOther.put(person, meal + "-" + classs);
 				}
 				
+				int resrNo = DBUtils.addReservation(MyUtils.getStoredConnection(request), c, peopleAndOther, airlineID, flightNo, rt, firstLeg, lastLeg);
 				
+				if(resrNo == -1) {
+					response.sendRedirect("home?err=4");
+					return;
+				}
 				
 				if(rt) {
 					String retFlightNoString = (String) session.getAttribute("retFlightNo");
@@ -150,6 +177,9 @@
 					String retLegs = (String) session.getAttribute("retLegs");
 					out.println(retFlightNoString + "," + retAirlineID + "," + retLegs);
 				}
+				
+				out.println("<p class='alert alert-success'>Reservation successfully booked!</p>");
+				
 				return;
 			}
 			String rtString = request.getParameter("rt");
@@ -179,12 +209,12 @@
 					if(i == 1) {
 						out.println("<div class='checkbox checkbox-self'><input type='checkbox' name='include-self' checked> Tick if you want yourself as Person 1 (no need to fill info for Person 1 if ticked EXCEPT meal and class)</div>");
 					}
-					out.println("<div class='form-group'><input required type='text' name='fname-" + i + "' placeholder='First Name'></div>");
-					out.println("<div class='form-group'><input required type='text' name='lname-" + i + "' placeholder='Last Name'></div>");
-					out.println("<div class='form-group'><input required type='text' name='address-" + i + "' placeholder='Address'></div>");
-					out.println("<div class='form-group'><input required type='text' name='city-" + i + "' placeholder='City'></div>");
-					out.println("<div class='form-group'><input required type='text' name='state-" + i + "' placeholder='State'></div>");
-					out.println("<div class='form-group'><input required type='text' name='zip-" + i + "' placeholder='Zip Code'></div>");
+					out.println("<div class='form-group'><input " + (i != 1 ? "required " : "") + "type='text' name='fname-" + i + "' placeholder='First Name'></div>");
+					out.println("<div class='form-group'><input " + (i != 1 ? "required " : "") + "type='text' name='lname-" + i + "' placeholder='Last Name'></div>");
+					out.println("<div class='form-group'><input " + (i != 1 ? "required " : "") + "type='text' name='address-" + i + "' placeholder='Address'></div>");
+					out.println("<div class='form-group'><input " + (i != 1 ? "required " : "") + "type='text' name='city-" + i + "' placeholder='City'></div>");
+					out.println("<div class='form-group'><input " + (i != 1 ? "required " : "") + "type='text' name='state-" + i + "' placeholder='State'></div>");
+					out.println("<div class='form-group'><input " + (i != 1 ? "required " : "") + "type='text' name='zip-" + i + "' placeholder='Zip Code'></div>");
 					out.println("<label>Meal:</label><br><select class='form-group' name='meal-" + i + "'><option>Chips</option><option>Fish and Chips</option><option>Sushi</option></select>");
 					out.println("<br><label>Class:</label><br><select class='form-group' name='class-" + i + "'><option>First</option><option>Business</option><option>Economy</option></select>");
 					out.println("</div>");
