@@ -11,9 +11,11 @@ import java.util.Map;
 
 import org.flightcrew.beans.Airline;
 import org.flightcrew.beans.Airport;
+import org.flightcrew.beans.Customer;
 import org.flightcrew.beans.Flight;
 import org.flightcrew.beans.Includes;
 import org.flightcrew.beans.Leg;
+import org.flightcrew.beans.Person;
 import org.flightcrew.beans.Reservation;
 import org.flightcrew.beans.UserAccount;
 import org.flightcrew.beans.UserAccount.AccountType;
@@ -95,7 +97,7 @@ public class DBUtils {
 				String arrTime = rs.getString("ArrTime");
 				String key = airlineID + "," + flightNo;
 				if(!legs.containsKey(key)) {
-					legs.put(key, new ArrayList<>());
+					legs.put(key, new ArrayList<Leg>());
 				}
 				legs.get(key).add(new Leg(airlineID, flightNo, legNo, depAirportID, arrAirportID, depTime, arrTime));
 			}
@@ -184,7 +186,7 @@ public class DBUtils {
 			if(flights.containsKey(key)) {
 				Flight flight = flights.get(key);
 				if(!flightsAndLegs.containsKey(flight)) {
-					flightsAndLegs.put(flight, new ArrayList<>());
+					flightsAndLegs.put(flight, new ArrayList<Leg>());
 				}
 				flightsAndLegs.get(flight).add(leg);
 			}
@@ -332,15 +334,15 @@ public class DBUtils {
 	
 	//TODO: CHECK
 	//TODO: A history of all current and past reservations a customer has made
-	public static List<Reservation> getAllPastReservations(Connection conn, int accountNo) throws SQLException {
+	public static ArrayList<Reservation> getReservations(Connection conn, int accountNo) throws SQLException {
 		
-        List<Reservation> reservations = new ArrayList<>();
+        ArrayList<Reservation> reservations = new ArrayList<>();
 		
 		String sql = "Select * from Reservation" //
                 + " where AccountNo = ?";
  
         PreparedStatement pstm = conn.prepareStatement(sql);
-        pstm.setInt(0, accountNo);
+        pstm.setInt(1, accountNo);
         ResultSet rs = pstm.executeQuery();
         
 		while(rs.next()) {
@@ -382,11 +384,11 @@ public class DBUtils {
                 + " VALUES (?, NOW(), ?, ?, ?, ?)";
 		
 		PreparedStatement pstm = conn.prepareStatement(sql);
-        pstm.setInt(0, resrNo);
-        pstm.setDouble(1, bookingFee);
-        pstm.setDouble(2, totalFare);
-        pstm.setInt(3, repSSN);
-        pstm.setInt(4, accountNo);
+        pstm.setInt(1, resrNo);
+        pstm.setDouble(2, bookingFee);
+        pstm.setDouble(3, totalFare);
+        pstm.setInt(4, repSSN);
+        pstm.setInt(5, accountNo);
         
         return pstm.execute();
 	}
@@ -422,6 +424,25 @@ public class DBUtils {
 //		return flights;
 		
 		throw new UnsupportedOperationException("Not supported yet.");
+	}
+	
+	
+	public static Customer getCustomer(Connection conn, String username) throws SQLException {
+		String sql = "SELECT * from Customer WHERE Username = ?";
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		pstm.setString(1, username);
+        ResultSet rs = pstm.executeQuery();
+        rs.next();
+        return new Customer(rs.getInt("Id"), rs.getInt("AccountNo"), rs.getString("CreditCardNo"), rs.getString("Email"), rs.getString("CreditCardNo"), rs.getInt("Rating"), rs.getString("Username"), rs.getString("Password"));
+	}
+	
+	public static Person getPerson(Connection conn, String username) throws SQLException {
+		String sql = "SELECT * from Person WHERE Id = (select Id from Customer Where Username = ?)";
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		pstm.setString(1, username);
+        ResultSet rs = pstm.executeQuery();
+        rs.next();
+        return new Person(rs.getInt("Id"), rs.getString("FirstName"), rs.getString("LastName"), rs.getString("Address"), rs.getString("City"), rs.getString("State"), rs.getInt("ZipCode"));
 	}
 	
 	

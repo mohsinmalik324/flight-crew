@@ -57,4 +57,37 @@
 .navbar-right {
 	text-align: right;
 }
+.middle {
+	width: 350px;
+	margin: auto;
+	text-align: center;
+}
+
+#origin, #dest, #dept-date, #ret-date, #num-people {
+	margin-bottom: 10px;
+}
+
+.flight {
+	background-color: #e6e6e6;
+	border-radius: 5px;
+	border-style: solid;
+	padding: 10px;
+	margin-bottom: 5px;
+}
+
+#airline {
+	font-size: 20px;
+	font-weight: bold;
+}
+
+#flightNo {
+	font-weight: bold;
+	font-size: 18px;
+	margin-top: -10px;
+}
+
+.leg-number {
+	text-decoration: underline;
+	font-weight: bold;
+}
 </style>

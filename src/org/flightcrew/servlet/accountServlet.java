@@ -25,15 +25,17 @@ public class accountServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
  
-        // Forward to /WEB-INF/views/accountView.jsp
+        // Retrieve account from current session.
     	UserAccount ua = (UserAccount) request.getSession().getAttribute("loginedUser");
     	AccountType accountType = null;
     	RequestDispatcher dispatcher;
     	
+    	// Find what type of account the current user has.
     	if(ua != null) {
     		accountType = ua.getType();
     	}
     	
+    	// Redirect to appropriate page based on type of account or direct to login page if user is not logged in.
     	if(accountType == AccountType.Customer) {
     		dispatcher = this.getServletContext().getRequestDispatcher("/WEB-INF/views/accountView.jsp");
     	} else if(accountType == AccountType.Representative) {
