@@ -289,7 +289,7 @@
 					
 					<%if(request.getSession().getAttribute("isReverseAuction") != null) {
 						out.println("<label for='nyop'><br>Name Your Own Price:  $</label>");
-						out.println("<input id='nyop' name='nyop' type='date' placeholder='Total price'><br><br>");
+						out.println("<input id='nyop' name='nyop' type='text' placeholder='Total price'><br><br>");
        					request.getSession().removeAttribute("isReverseAuction");
 					}%>
 					
@@ -428,6 +428,7 @@
 						}
 						
 						if(request.getSession().getAttribute("isReverseAuction2") != null) {
+							request.getSession().removeAttribute("isReverseAuction2");
 							Double nyop = Double.valueOf(nyopString);
 							Double[] fares = DBUtils.getFareForFlight(conn, flight, rt);
 							// Customers NYOP is not good enough for any flight.

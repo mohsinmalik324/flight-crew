@@ -80,6 +80,19 @@ public class DBUtils {
 		return true;
 	}
 	
+	public static void addInclude(Connection conn, int resrNo, String airlineID, int flightNo, int legNo, String date) throws SQLException{
+		String sql = "INSERT INTO Includes VALUES (?, ?, ?, ?, ?)";
+		PreparedStatement ps = conn.prepareStatement(sql);
+		
+		ps.setInt(1, resrNo);
+		ps.setString(2, airlineID);
+		ps.setInt(3, flightNo);
+		ps.setInt(4, legNo);
+		ps.setString(5, date);
+		
+		ps.execute();
+	}
+	
 	public static int addReservation(Connection conn, Customer c, Map<Person, String> peopleAndOther, String airlineID, int flightNo, boolean rt, int firstLeg, int lastLeg, Double nyop) {
 		double totalFare = 0;
 		for(Person person : peopleAndOther.keySet()) {
@@ -354,6 +367,11 @@ public class DBUtils {
 		return runQuery(conn, sql) && runQuery(conn, sql2);
 	}
 	
+	public static boolean updateCustomer(Connection conn, Integer accountNo, String email, String username, String password, String ccNo) {
+		String sql = "UPDATE Customer SET CreditCardNo = " + ccNo + ", Email = \"" + email + "\", Password = \"" + password + "\", Username = \"" + username + "\" WHERE AccountNo = " + accountNo;
+		System.out.println(sql);
+		return runQuery(conn, sql);
+	}
 	
 	public static int getNumberOfRecords(Connection conn, String table) {
 		String sql = "SELECT COUNT(*) FROM " + table;
@@ -369,6 +387,35 @@ public class DBUtils {
 		return 0;
 	}
  
+    public static boolean userExists(Connection conn, String accountNumber) throws SQLException {
+        String sql = "Select * from Customer" //
+                + " where AccountNo = ?";
+ 
+        
+        PreparedStatement pstm = conn.prepareStatement(sql);
+        pstm.setInt(1, Integer.valueOf(accountNumber));
+        ResultSet rs = pstm.executeQuery();
+ 
+        if (rs.next()) {
+        	return true;
+        }
+        return false;
+	}
+    
+    public static boolean repExists(Connection conn, String id) throws SQLException {
+        String sql = "Select * from Employee" //
+                + " where SSN = ?";
+ 
+        PreparedStatement pstm = conn.prepareStatement(sql);
+        pstm.setString(1, id);
+        ResultSet rs = pstm.executeQuery();
+ 
+        if (rs.next()) {
+        	return true;
+        }
+        return false;
+    }
+
     public static UserAccount findUser(Connection conn, //
             String userName, String password) throws SQLException {
  
@@ -524,6 +571,25 @@ public class DBUtils {
         return pstm.execute();
 	}
 	
+	public static int createReservation(Connection conn, String resDate, double bookingFee, double totalFare, int repSSN, int accountNo) throws SQLException {
+		int resrNo = getNumberOfRecords(conn, "Reservation") + 1;
+		String sql = "INSERT INTO Reservation (ResrNo, ResrDate, BookingFee, TotalFare, RepSSN, AccountNo)"//
+                + " VALUES (?, ?, ?, ?, ?, ?)";
+		
+		System.out.println(sql);
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		int num = 1;
+        pstm.setInt(num++, resrNo);
+        pstm.setString(num++, resDate);
+        pstm.setDouble(num++, bookingFee);
+        pstm.setDouble(num++, totalFare);
+        pstm.setInt(num++, repSSN);
+        pstm.setInt(num++, accountNo);
+        
+        pstm.execute();
+        return resrNo;
+	}
+	
 	public static int createReservationGetID(Connection conn, double bookingFee, double totalFare, int repSSN, int accountNo) throws SQLException {
 		
 		int resrNo = getNumberOfRecords(conn, "Reservation") + 1;
@@ -610,6 +676,14 @@ public class DBUtils {
         return null;
 	}
 	
+	public static Customer getCustomer(Connection conn, Integer accountNo) throws SQLException {
+		String sql = "SELECT * from Customer WHERE AccountNo = ?";
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		pstm.setInt(1, accountNo);
+        ResultSet rs = pstm.executeQuery();
+        rs.next();
+        return new Customer(rs.getInt("Id"), rs.getInt("AccountNo"), rs.getString("CreditCardNo"), rs.getString("Email"), rs.getString("CreditCardNo"), rs.getInt("Rating"), rs.getString("Username"), rs.getString("Password"));
+	}
 	
 	public static Customer getCustomer(Connection conn, String username) throws SQLException {
 		String sql = "SELECT * from Customer WHERE Username = ?";
