@@ -9,6 +9,7 @@
 			<li><a href="${pageContext.request.contextPath}/homeLink">Home</a></li>
 			<li><a href="${pageContext.request.contextPath}/reverseAuction">Reverse Auction</a></li>
 			<li><a href="${pageContext.request.contextPath}/account">My Account</a></li>
+			<li><a href="${pageContext.request.contextPath}/help">Help</a></li>
 		</ul>
 		<ul class="nav navbar-nav navbar-right">
 			<%  Object a = request.getSession().getAttribute("loginedUser");
