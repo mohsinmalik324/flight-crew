@@ -426,6 +426,45 @@ public class DBUtils {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
 	
+	public static Double getSmallestFare(Double[] fares) {
+		if(fares[0] != null) return fares[0];
+		if(fares[1] != null) return fares[1];
+		if(fares[2] != null) return fares[2];
+		return Double.MAX_VALUE;
+	}
+	
+	public static Double[] getFareForFlight(Connection conn, Flight flight) throws SQLException {
+        String sql = "Select * from Fare f "//
+                + " where f.AirlineId = ? "//
+                + " and f.FlightNo = ? "//
+                + " and f.FareType = ? ";//
+                //+ " and f.Class = ? ";
+        
+		PreparedStatement pstm = conn.prepareStatement(sql);
+		
+        pstm.setString(1, flight.getAirlineID());
+        pstm.setInt(2, flight.getFlightNumber());
+        //pstm.setString(3, flight.getFareType());
+        //pstm.setString(4, flight.getClass());
+        pstm.setString(3, "oneway");
+        
+        ResultSet rs = pstm.executeQuery();
+        Double[] fares = new Double[3];
+        fares[0] = fares[1] = fares[2] = null;
+        boolean foundValues = false;
+        while(rs.next()) {
+        	foundValues = true;
+	        Double fare = rs.getDouble("Fare");
+	        String fClass = rs.getString("Class");
+	        System.out.println("Class is " + fClass + " fare is " + String.valueOf(fare));
+	        if(fClass.equals("first")) fares[2] = fare;
+	        else if(fClass.equals("business")) fares[1] = fare;
+	        else if(fClass.equals("economy")) fares[0] = fare;
+        }
+        if(foundValues) return fares;
+        return null;
+	}
+	
 	
 	public static Customer getCustomer(Connection conn, String username) throws SQLException {
 		String sql = "SELECT * from Customer WHERE Username = ?";

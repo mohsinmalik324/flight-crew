@@ -6,68 +6,15 @@
 <%@ page import="org.flightcrew.utils.MyUtils" %>
 <%@ page import="org.flightcrew.beans.*" %>
 <%@ page import="java.sql.Connection" %>
+<%@ page import="java.util.regex.Matcher" %>
+<%@ page import="java.util.regex.Pattern" %>
+<%@ page import="java.util.Arrays" %>
+<%@ page import="java.util.ArrayList" %>
 <!DOCTYPE html>
 <html>
 	<head>
 		<jsp:include page="_head.jsp"></jsp:include>
-		<style>
-			.middle {
-				width: 350px;
-				margin: auto;
-				text-align: center;
-			}
-			
-			#origin, #dest, #dept-date, #ret-date, #num-people {
-				margin-bottom: 10px;
-			}
-			
-			.flight {
-				background-color: #e6e6e6;
-				border-radius: 5px;
-				border-style: solid;
-				padding: 10px;
-				margin-bottom: 5px;
-			}
-			
-			#airline {
-				font-size: 20px;
-				font-weight: bold;
-			}
-			
-			#flightNo {
-				font-weight: bold;
-				font-size: 18px;
-				margin-top: -10px;
-			}
-			
-			.leg-number {
-				text-decoration: underline;
-				font-weight: bold;
-			}
-			
-			.person-text {
-				font-weight: bold;
-				font-size: 20px;
-			}
-			
-			#person-submit {
-				margin-bottom: 10px;
-			}
-			
-			.person {
-				border-style: solid;
-				border-radius: 8px;
-				margin-bottom: 15px;
-				padding-top: 10px;
-				padding-bottom: 10px;
-				background-color: #e6e6e6;
-			}
-			
-			.checkbox-self {
-				width: 250px;
-				margin: auto;
-			}
-		</style>
+		<jsp:include page="style.css"></jsp:include>
 	</head>
 	<body>
 		<jsp:include page="_header.jsp"></jsp:include>
@@ -76,9 +23,8 @@
 			<%
 		  
 			if(request.getSession().getAttribute("isReverseAuction") != null) {
-				String infoMsg = "First select an origin and destination.";
+				String infoMsg = "Enter your flight details and name your price.";
 				out.println("<p class='alert alert-info' id='errMsg'>" + "<b>Reverse Auction</b><br>" + infoMsg + "</p>");
-       			request.getSession().removeAttribute("isReverseAuction");
     			request.getSession().setAttribute("isReverseAuction2", 1);
 			} 
 			String err = request.getParameter("err");
@@ -90,6 +36,8 @@
 					errMsg = "Return Date must come after Departure Date.";
 				} else if(err.equals("3")) {
 					errMsg = "Departure Date must be specified.";
+				} else if(err.equals("4")) {
+					errMsg = "Requested price must be in valid American currency format. (ie. $x,xxx.xx, $xxxx.xx, $xxxx).";
 				}
 				if(errMsg != null) {
 					out.println("<p class='alert alert-danger' id='errMsg'>" + errMsg + "</p>");
@@ -111,7 +59,6 @@
 				if(request.getSession().getAttribute("isReverseAuction3") != null) {
 					String infoMsg = "Now enter passengers information.";
 					out.println("<p class='alert alert-info' id='errMsg'>" + "<b>Reverse Auction</b><br>" + infoMsg + "</p>");
-					
 				} 
 				out.println("<form method='post' action='home'>");
 				for(int i = 1; i <= numPeople; i++) {
@@ -127,19 +74,30 @@
 					out.println("<div class='form-group'><input required type='text' name='state-" + i + "' placeholder='State'></div>");
 					out.println("<div class='form-group'><input required type='text' name='zip-" + i + "' placeholder='Zip Code'></div>");
 					out.println("<label>Meal:</label><br><select class='form-group' name='meal-" + i + "'><option>Chips</option><option>Fish and Chips</option><option>Sushi</option></select>");
-					out.println("<br><label>Class:</label><br><select class='form-group' name='class-" + i + "'><option>First</option><option>Business</option><option>Economy</option></select>");
+					
+					ArrayList<Double> fares = (ArrayList<Double>)request.getSession().getAttribute("fares");
+					if(fares != null) {
+						StringBuilder options = new StringBuilder();
+						Double custNyop = fares.get(3);
+						if(fares.get(2) != null && custNyop >= fares.get(2))
+							options.append("<option>First</option>");
+						if(fares.get(1) != null && custNyop >= fares.get(1))
+							options.append("<option>Business</option>");
+						if(fares.get(0) != null && custNyop >= fares.get(0))
+							options.append("<option>Economy</option>");
+						out.println("<br><label>Class:</label><br><select class='form-group' name='class-" + i + "'>" + options.toString() + "</select>");
+					} else {
+						System.out.println("no fares");
+						out.println("<br><label>Class:</label><br><select class='form-group' name='class-" + i + "'><option>First</option><option>Business</option><option>Economy</option></select>");
+					}
+					
 					out.println("</div>");
 				}
 				
-				if(request.getSession().getAttribute("isReverseAuction3") != null) {
-					
-					out.println("<label for='nyop'>Name Your Own Price:  $</label>");
-					out.println("<input id='nyop' name='nyop' type='date' placeholder='Total price'><br>");
-				}
 				out.println("<br><button id='person-submit' type='submit' class='btn btn-default'>Submit</button>");
 				out.println("</form>");
 				if(rt) {
-					
+						
 					session.setAttribute("rtFlightNo", "");
 				} else {
 					String flightNoString = request.getParameter("flightNo");
@@ -156,6 +114,7 @@
 			String deptDateString = request.getParameter("dept-date");
 			String retDateString = request.getParameter("ret-date");
 			String numPeopleString = request.getParameter("num-people");
+			String nyopString = request.getParameter("nyop");
 			// Check if none of the fields are available.
 			if(origin == null && dest == null && deptDateString == null && retDateString == null && numPeopleString == null) {%>
 				<form method="post" action="${pageContext.request.contextPath}/">
@@ -190,6 +149,13 @@
 						}
 						%>
 					</select>
+					
+					<%if(request.getSession().getAttribute("isReverseAuction") != null) {
+						out.println("<label for='nyop'><br>Name Your Own Price:  $</label>");
+						out.println("<input id='nyop' name='nyop' type='date' placeholder='Total price'><br><br>");
+       					request.getSession().removeAttribute("isReverseAuction");
+					}%>
+					
 					<button type="submit" class="btn btn-default">Search</button>
 				</form>
 			<%} else {
@@ -227,6 +193,14 @@
 					response.sendRedirect("home?err=2");
 					return;
 				}
+				if(nyopString != null) {
+					final String USD_REGEX = "^\\$?\\-?([1-9]{1}[0-9]{0,2}(\\,\\d{3})*(\\.\\d{0,2})?|[1-9]{1}\\d{0,}(\\.\\d{0,2})?|0(\\.\\d{0,2})?|(\\.\\d{1,2}))$|^\\-?\\$?([1-9]{1}\\d{0,2}(\\,\\d{3})*(\\.\\d{0,2})?|[1-9]{1}\\d{0,}(\\.\\d{0,2})?|0(\\.\\d{0,2})?|(\\.\\d{1,2}))$|^\\(\\$?([1-9]{1}\\d{0,2}(\\,\\d{3})*(\\.\\d{0,2})?|[1-9]{1}\\d{0,}(\\.\\d{0,2})?|0(\\.\\d{0,2})?|(\\.\\d{1,2}))\\)$";
+					Pattern p = Pattern.compile(USD_REGEX);
+					Matcher m = p.matcher(nyopString);
+					if(!m.matches()) {
+						response.sendRedirect("reverseAuction?err=4");
+					}
+				}
 				
 				// Error checking done, generate flight list below.
 				
@@ -259,10 +233,10 @@
 					}
 				}
 				
-				if(request.getSession().getAttribute("isReverseAuction2") != null) {
-					String infoMsg = "Now select a flight.";
+				if(request.getSession().getAttribute("isReverseAuction2") != null && user != null) {
+					String infoMsg = "Now select a flight that has accepted your price.";
 					out.println("<p class='alert alert-info' id='errMsg'>" + "<b>Reverse Auction</b><br>" + infoMsg + "</p>");
-       				request.getSession().removeAttribute("isReverseAuction2");
+					
     				request.getSession().setAttribute("isReverseAuction3", 1);
 				} 
 				
@@ -301,6 +275,9 @@
 						int lleg = legs.get(legs.size() - 1).getLegNumber();
 						if(retDate != null) {
 							link = "home?rt=1&origin=" + dest + "&dest=" + origin + "&dept-date=" + retDateString + "&ret-date=&num-people=" + numPeopleString;
+							if(nyopString != null) {
+								link += "&nyop" + nyopString;
+							}
 							link += "&flightNo=" + flightNo + "&airlineID=" + flight.getAirlineID() + "&legs=" + fleg + "-" + lleg;
 						} else {
 							// Submitting return flight. Else submitting one-way.
@@ -310,7 +287,22 @@
 								link = "home?num-people=" + numPeopleString + "&rt=0&lp=1&flightNo=" + flightNo + "&airlineID=" + flight.getAirlineID() + "&legs=" + fleg + "-" + lleg;
 							}
 						}
-						out.println("<a href='" + link + "'><button type='submit' class='btn btn-primary'>Book This Flight</button></a>");
+						
+						if(request.getSession().getAttribute("isReverseAuction2") != null) {
+							Double nyop = Double.valueOf(nyopString);
+							Double[] fares = DBUtils.getFareForFlight(conn, flight);
+							if(nyop <= DBUtils.getSmallestFare(fares)) {
+								out.println("<a href='" + link + "'><button class='btn btn-secondary' disabled>Book This Flight</button></a>");
+							} else {
+								System.out.println("fares arr being stored");
+								ArrayList<Double> faresArr = new ArrayList<>(Arrays.asList(fares));
+								faresArr.add(nyop);
+								session.setAttribute("fares", faresArr);
+								out.println("<a href='" + link + "'><button type='submit' class='btn btn-primary'>Book This Flight</button></a>");
+							}
+						} else {
+							out.println("<a href='" + link + "'><button type='submit' class='btn btn-primary'>Book This Flight</button></a>");
+						}
 					}
 					out.println("</div>");
 				}

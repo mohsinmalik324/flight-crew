@@ -90,4 +90,31 @@
 	text-decoration: underline;
 	font-weight: bold;
 }
+
+.person-text {
+	font-weight: bold;
+	font-size: 20px;
+}
+
+#person-submit {
+	margin-bottom: 10px;
+}
+
+.person {
+	border-style: solid;
+	border-radius: 8px;
+	margin-bottom: 15px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	background-color: #e6e6e6;
+}
+
+.checkbox-self {
+	width: 250px;
+	margin: auto;
+}
+
+.btn-secondary {
+	color: #383838;
+}
 </style>
