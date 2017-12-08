@@ -149,19 +149,18 @@ public class accountServlet extends HttpServlet {
 	    	}
 	    	
 	    	if(request.getParameter("gen-flsuggestions-submit") != null) {
-	    		/*List<String> ml = null;
+	    		String accNo  = request.getParameter("acc-no-input7");
+	    		Integer accountNo = null;
 	    		try {
-					ml = DBUtils.getMailingList(MyUtils.getStoredConnection(request));
-					StringBuilder sb = new StringBuilder();
-					for(String s : ml) {
-						sb.append(s);
-						sb.append("<br>");
-					}
-					
-					request.getSession().setAttribute("mailingList", sb.toString());
-				} catch (SQLException e) {
+	    			accountNo = Integer.valueOf(accNo);
+					String suggestions = DBUtils.getPersonalizedFlights(MyUtils.getStoredConnection(request), accountNo);
+					request.getSession().setAttribute("flightSuggestions", suggestions);
+	    		} catch(NumberFormatException e) {
 					e.printStackTrace();
-				}*/
+	    		} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 	    	}
 	    	
     		dispatcher = this.getServletContext().getRequestDispatcher("/WEB-INF/views/repView.jsp");

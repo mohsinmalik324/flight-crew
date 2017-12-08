@@ -119,6 +119,8 @@
 	        }
 			%>
 			<form method="post" action="${pageContext.request.contextPath}/account">
+				<label for="acc-no7">Account Number: </label>
+				<input id="acc-no-input7" name="acc-no-input7" type="text">
 				<button type="submit" name ="gen-flsuggestions-submit" id="gen-flsuggestions-submit" class="btn btn-default">Generate Flight Suggestions</button>
 			</form>
 		  </table>

@@ -630,22 +630,27 @@ public class DBUtils {
 	
 	//TODO: Produce a list of flight suggestions for a given customer (based on that customer's past reservations)
 	//TODO: Personalized flight suggestion list
-	public static List<Flight> getPersonalizedFlights(Connection conn, int accountNo) throws SQLException {
-		List<Flight> flights = new ArrayList<>();
+	public static String getPersonalizedFlights(Connection conn, int accountNo) throws SQLException {
         /*String sql = "Select DISTINCT * from Reservation where AccountNo = ? ";
+         */
+        //String makeviewSql = "CREATE VIEW FlightReservation(AirlineID, FlightNo, ResrCount) AS SELECT I.AirlineID, I.FlightNo, COUNT(DISTINCT I.ResrNo) FROM Includes I GROUP BY I.AirlineID, I.FlightNo";
+		//PreparedStatement pstm = conn.prepareStatement(makeviewSql);
+        //pstm.execute();
         
+        String sql = "SELECT * FROM FlightReservation FR WHERE NOT EXISTS (SELECT * FROM Reservation R, Includes I WHERE R.ResrNo = I.ResrNo AND FR.AirlineID = I.AirlineID AND FR.FlightNo = I.FlightNo AND R.AccountNo = ?)";
 		PreparedStatement pstm = conn.prepareStatement(sql);
-		
         pstm.setInt(1, accountNo);
-        		
         ResultSet rs = pstm.executeQuery();
-        
+        StringBuilder sb = new StringBuilder();
 		while(rs.next()) {
-			Flight flight = new String(rs.getString("Email"));
-			flights.add(flight);
+			String airline = rs.getString("AirlineID");
+			String flightno = rs.getString("FlightNo");
+			sb.append(airline);
+			sb.append(" flight number ");
+			sb.append(flightno);
+			sb.append("<br>");
 		}
-		*/
-		return flights;
+		return sb.toString();
 	}
 	
 	public static Double[] getFareForFlight(Connection conn, Flight flight, boolean isRoundtrip) throws SQLException {
