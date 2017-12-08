@@ -4,7 +4,7 @@
 		<jsp:include page="_head.jsp"></jsp:include>
 		<style>
 			.middle {
-				width: 500px;
+				width: 600px;
 				margin: auto;
 				text-align: center;
 			}

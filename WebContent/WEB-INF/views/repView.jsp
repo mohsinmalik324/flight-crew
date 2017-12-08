@@ -36,15 +36,15 @@
   				</div>
   				<div class="col-sm-8">
 					<form method="post" action="${pageContext.request.contextPath}/account">
-					<input id="res-date-in" name="res-date-in" type="date"><br>
-					<input id="book-fee-in" name="book-fee-in" type="text"><br>
-					<input id="tot-fare-in" name="tot-fare-in" type="text"><br>
-					<input id="rep-id-in" name="rep-id-in" type="text"><br>
-					<input id="acc-no3-in" name="acc-no3-in" type="text"><br>
-					<input id="air-id-in" name="air-id-in" type="text"><br>
-					<input id="flight-no-in" name="flight-no-in" type="text"><br>
-					<input id="leg-no-in" name="leg-no-in" type="text"><br>
-					<input id="flight-date-in" name="flight-date-in" type="date"><br><br>
+					<input required id="res-date-in" name="res-date-in" type="date"><br>
+					<input required id="book-fee-in" name="book-fee-in" type="text"><br>
+					<input required id="tot-fare-in" name="tot-fare-in" type="text"><br>
+					<input required id="rep-id-in" name="rep-id-in" type="text"><br>
+					<input required id="acc-no3-in" name="acc-no3-in" type="text"><br>
+					<input required id="air-id-in" name="air-id-in" type="text"><br>
+					<input required id="flight-no-in" name="flight-no-in" type="text"><br>
+					<input required id="leg-no-in" name="leg-no-in" type="text"><br>
+					<input required id="flight-date-in" name="flight-date-in" type="date"><br><br>
 					<button type="submit" id="acc-mod-submit" name="res-submit" class="btn btn-default">Record Reservation</button><br><br><br>
 					</form>
   				</div>
